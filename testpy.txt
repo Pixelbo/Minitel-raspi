@@ -1,0 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: iso-8859-1 -*-
+
+from whiptail import *
+x= Whiptail("Test title", backtitle="backtitle", height=10, width= 30)
+print(x.menu("choose", ("test","more tests")))

@@ -1,0 +1,3 @@
+/home/pi/Minitel/init.py ttyUSB0       # Minitel initialization
+/home/pi/Minitel/tty.py ttyUSB0 Minitel &   # Minitel terminal converter
+
