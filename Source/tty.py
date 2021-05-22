@@ -128,7 +128,7 @@ ignpar icrnl -ixon ixany -opost cread hupcl isig cbreak min 1 \
 
 # Run a shell for the specified user
 libc = ctypes.CDLL('libc.so.6')
-p = subprocess.Popen(['bash', '-c', 'export TERM=\'{}\'; export LANG=\'{}\'; while true; do clear; cd \'{}\'; runuser -l \'{}\'; sleep 1; done'.format(term, lang, '/home/'+user', user)], stdin=slave, stdout=slave, stderr=slave, bufsize=0, preexec_fn=libc.setsid)
+p = subprocess.Popen(['bash', '-c', 'export TERM=\'{}\'; export LANG=\'{}\'; while true; do clear; cd \'{}\'; runuser -l \'{}\'; sleep 1; done'.format(term, lang, '/home/'+user, user)], stdin=slave, stdout=slave, stderr=slave, bufsize=0, preexec_fn=libc.setsid)
 
 pid = os.fork()
 if pid:
