@@ -3,6 +3,7 @@
 from pylms.server import Server
 from pylms.player import Player
 
+
 sc = Server(hostname="192.168.0.10", port=9090, username=" ", password=" ")
 sc.connect()
 
@@ -17,4 +18,4 @@ print("Name: %s | Mode: %s | Time: %s | Connected: %s | WiFi: %s" % (sq.get_name
 print(sq.get_track_title())
 print(sq.get_time_remaining())
 
-print(sc.search("voulez-vous", mode="songs"))
+print(sc.search("random", mode="albums"))
