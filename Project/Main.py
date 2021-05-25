@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: iso-8859-1 -*-
 
+from whiptail import Whiptail
 from pylms.server import Server
 from pylms.player import Player
-from whiptail import *
-
 
 def center_text(input_list): #Outputs a list with *space required to have the text centered
   output_list = []
@@ -14,9 +13,11 @@ def center_text(input_list): #Outputs a list with *space required to have the te
       " "*(max_char-int(len(i)/2)) + i )
       
   return output_list
-
+  
+  
 class LMS():
     def __init__(self, whip):
+    
         self.server = Server(hostname="192.168.0.10", port=9090, username=" ", password=" ")
         self.server.connect()
         self.player = self.server.get_player("00:0f:55:a8:d0:f9")
@@ -25,9 +26,9 @@ class LMS():
         self.whip = whip
 
         if self.connected:
-            choix_menuLMS_no_center =("Pause/play", "Stop", "Next", "Previous",
-                       "Regarder la playlist", "Clear la playlist",
-                       "Ajouter un titre a la playlist", "Ajouter un album a la playlist", "Chercher un artiste",
+            choix_menuLMS_no_center =("Pause/play", "Stop", "Next", "Previous", "----------------",
+                       "Regarder la playlist", "Clear la playlist", "----------------",
+                       "Ajouter un titre a la playlist", "Ajouter un album a la playlist", "Chercher un artiste", "----------------",
                        "Quitter")
             
             
@@ -39,18 +40,23 @@ class LMS():
             #return
 
     def menu(self):
-        selction = self.whip.menu("", self.choix_menuLMS).decode("UTF-8")
+        selection = self.whip.menu("", self.choix_menuLMS).decode("UTF-8")
 
-        if selction == self.choix_menuLMS[0]: self.toggle()
-        if selction == self.choix_menuLMS[1]: self.stop()
-        if selction == self.choix_menuLMS[2]: self.next()
-        if selction == self.choix_menuLMS[3]: self.previous()
-        if selction == self.choix_menuLMS[4]: self.lookpl()
-        if selction == self.choix_menuLMS[5]: self.clearpl()
-        if selction == self.choix_menuLMS[6]: self.title_add()
-        if selction == self.choix_menuLMS[7]: self.album_add()
-        if selction == self.choix_menuLMS[8]: self.artist_lp()
-        if selction == self.choix_menuLMS[-1]: Main()
+        if selection == self.choix_menuLMS[0]: self.toggle()    #TODO: better selection method
+        if selection == self.choix_menuLMS[1]: self.stop()
+        if selection == self.choix_menuLMS[2]: self.next()
+        if selection == self.choix_menuLMS[3]: self.previous()
+        if selection == self.choix_menuLMS[5]: self.lookpl()
+        if selection == self.choix_menuLMS[6]: self.clearpl()
+        if selection == self.choix_menuLMS[8]: self.title_add()
+        if selection == self.choix_menuLMS[9]: self.album_add()
+        if selection == self.choix_menuLMS[10]: self.artist_lp()
+        
+        if selection == (self.choix_menuLMS[4] or 
+                        self.choix_menuLMS[7] or
+                        self.choix_menuLMS[-2]):
+                        self.menu() #redraw becaus pass will take us back to previous menu
+        if selection == self.choix_menuLMS[-1]: Main()
 
 
 
@@ -158,11 +164,11 @@ class LMS():
             self.whip.alert("Erreur, dommage...")
 
         self.menu()
-
-
-
+        
 class Main():
     def __init__(self):
+        
+ 
         self.whip = Whiptail("Le Minitel des Hilkens", backtitle="B.Hilkens 2021", height=24, width= 80)
 
         choix_menuMain_no_center = ("Music","other...", "Quitter")
