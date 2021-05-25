@@ -6,6 +6,15 @@ from pylms.player import Player
 from whiptail import *
 
 
+def center_text(input_list): #Outputs a list with *space required to have the text centered
+  output_list = []
+  max_char= int(len(max(input_list, key=len))/2)
+  for i in input_list:
+    output_list.append(
+      " "*(max_char-int(len(i)/2)) + i )
+      
+  return output_list
+
 class LMS():
     def __init__(self, whip):
         self.server = Server(hostname="192.168.0.10", port=9090, username=" ", password=" ")
@@ -16,10 +25,13 @@ class LMS():
         self.whip = whip
 
         if self.connected:
-            self.choix_menuLMS = ("Pause/play", "Stop", "Next", "Previous",
+            choix_menuLMS_no_center =("Pause/play", "Stop", "Next", "Previous",
                        "Regarder la playlist", "Clear la playlist",
                        "Ajouter un titre a la playlist", "Ajouter un album a la playlist", "Chercher un artiste",
                        "Quitter")
+            
+            
+            self.choix_menuLMS = center_text(choix_menuLMS_no_center)
             self.menu()
         else:
             self.whip.alert("Vous n'avez pas de player!")
@@ -153,7 +165,9 @@ class Main():
     def __init__(self):
         self.whip = Whiptail("Le Minitel des Hilkens", backtitle="B.Hilkens 2021", height=24, width= 80)
 
-        self.choix_menuMain = ("Music","other...", "Quitter")
+        choix_menuMain_no_center = ("Music","other...", "Quitter")
+
+        self.choix_menuMain = center_text(choix_menuMain_no_center)
 
         self.menu()
 
