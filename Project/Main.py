@@ -18,7 +18,7 @@ class LMS():
         if self.connected:
             self.choix_menuLMS = ("Pause/play", "Stop", "Next", "Previous",
                        "Regarder la playlist", "Clear la playlist",
-                       "Chercher un titre et l'ajouter a la playlist", "Chercher un album et l'ajouter a la playlist", "Chercher un artiste",
+                       "Ajouter un titre a la playlist", "Ajouter un album a la playlist", "Chercher un artiste",
                        "Quitter")
             self.menu()
         else:
@@ -96,15 +96,15 @@ class LMS():
 
         try:
             result = self.whip.menu("Resultats de recherche" ,song_list_treated ).decode("UTF-8")
-            song = self.server.search(result, mode="songs")[1][0]['url']
-            appendd = self.whip.confirm("Voulez-vous ajouter ce morceau a la playlist (oui) ou voulez-vous le jouer maintenant (non) ?")
-            if appendd: self.player.playlist_add(song)
+            song = song_list[song_list_treated.index(result)]['url']
+            appendd = self.whip.confirm("Voulez-vous jouer ce titre maintenant? ")
+            if not appendd: self.player.playlist_add(song)
             else: self.player.playlist_play(song)
 
         except IndexError:
-            whip.alert("Mauvais recherche, dommage...")
+            self.whip.alert("Mauvaise recherche, dommage...")
         except:
-            pass
+            self.whip.alert("Erreur, dommage...")
 
         self.menu()
 
@@ -127,7 +127,7 @@ class LMS():
         except IndexError:
             self.whip.alert("Mauvais recherche, dommage...")
         except:
-            pass
+            self.whip.alert("Erreur, dommage...")
 
         self.menu()
 
@@ -143,7 +143,7 @@ class LMS():
         except IndexError:
             self.whip.alert("Mauvais recherche, dommage...")
         except:
-            pass
+            self.whip.alert("Erreur, dommage...")
 
         self.menu()
 

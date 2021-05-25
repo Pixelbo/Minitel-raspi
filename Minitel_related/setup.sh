@@ -13,4 +13,5 @@ rm -r PyMinitel
 
 pip3 install pyserial
 echo 'export LANG=fr_FR.iso88591'>> /home/Minitel/.bashrc
+echo '/home/Minitel/Minitel-raspi/Project/Main.py'>> /home/Minitel/.bashrc #comment this line if u don't want the project at startup
 sudo tic "/home/Minitel/Minitel-raspi/Minitel_related/term.ti"
