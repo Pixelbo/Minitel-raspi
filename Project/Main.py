@@ -2,6 +2,8 @@
 # -*- coding: iso-8859-1 -*-
 
 from whiptail import Whiptail
+import threading
+import time
 from pylms.server import Server
 from pylms.player import Player
 
@@ -39,7 +41,9 @@ def center_text(input_str, max_chars=None, both_side=False): #Outputs a string w
 
 class LMS():
     def __init__(self, whip):
-
+        
+        self.update = False
+        
         self.server = Server(hostname="192.168.0.10", port=9090, username=" ", password=" ")
         self.server.connect()
 
@@ -63,8 +67,11 @@ class LMS():
         self.menu()
 
 
-    def menu(self):
-        selection = self.whip.menu("", self.choix_menuLMS).decode("UTF-8")
+    def menu(self, overdrive=None):
+        if overdrive != None:
+          selection = overdrive
+        else:
+          selection= self.whip.menu("", self.choix_menuLMS).decode("UTF-8")
 
         if selection == self.choix_menuLMS[0]: self.toggle()    #TODO: better selection method
         if selection == self.choix_menuLMS[1]: self.stop()
@@ -185,7 +192,15 @@ class LMS():
             self.whip.alert("Erreur, dommage...")
 
         self.menu()
-
+        
+    
+    def updater_status(self):
+        time.sleep(1)
+        self.update= True
+        self.whip.p.terminate()
+          
+      #print("ended")
+          
     def status_page(self):
         #const:
         #TODO
@@ -199,7 +214,7 @@ class LMS():
         genre = "Genre: " + track_genre
         track_elapsed = self.player.get_time_elapsed()
         track_duration = self.player.get_track_duration()
-        time_percent = int(track_elapsed*57/track_duration)
+        time_percent = int(track_elapsed*56/track_duration)
 
         playlist_not_treated = self.player.playlist_get_info()
         playlist_treated = []
@@ -216,7 +231,7 @@ class LMS():
 
         music_gauge=(
             center_text("+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+", 76),
-            center_text('Time_now' + time_indactor+ 'time_max', 76),
+            center_text(str(int(track_elapsed)) + " " + time_indactor+ " " + str(int(track_duration)), 76),
             center_text("+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+", 76)
         )
 
@@ -270,12 +285,24 @@ class LMS():
             music_gauge[1],
             music_gauge[2],
             center_text(" ", 76)
-        )
-
+        )   
+        self.updater = threading.Thread(target=self.updater_status)   
+             
+        if self.update:
+          self.update=False
+          print(self.updater.is_alive())
+          
+        self.updater.start()
         decision = self.whip.confirm("\n".join(final_message), default='no')#TODO: whiptails
         
-        if decision: self.menu()
-        else: self.menu()#TODO: album cover
+        if self.update:
+          #print(self.updater.is_alive())
+          self.menu(overdrive=self.choix_menuLMS[5])
+        else:
+          self.stop_threads = True
+          self.updater.join()
+          if decision: self.menu()
+          else: self.menu()#TODO: album cover
 
 class Main():
     def __init__(self):
