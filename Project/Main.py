@@ -5,39 +5,63 @@ from whiptail import Whiptail
 from pylms.server import Server
 from pylms.player import Player
 
-def center_text(input_list): #Outputs a list with *space required to have the text centered
+
+# MEMO writable char: max_h = 18
+#                     max_w = 76
+
+def center_list(input_list): #Outputs a list with *space required to have the text centered
   output_list = []
   max_char= int(len(max(input_list, key=len))/2)
   for i in input_list:
     output_list.append(
       " "*(max_char-int(len(i)/2)) + i )
-      
   return output_list
+
+def center_text(input_str, max_chars=None, both_side=False): #Outputs a string with *space required to have the text centered
+
+  if max_chars==None: max_chars= int(len(max(input_str, key=len))/2)
   
-  
+  spaces = int(max_chars/2-len(input_str)/2)
+
+  if ((spaces % 2) == 0):
+    spaces = spaces
+    spaces_right = spaces if ((len(input_str)%2) == 0) else spaces+1
+  else:
+    spaces = spaces-1
+    spaces_right = spaces+2
+
+    
+  if both_side: 
+    return " "*spaces + input_str + " "*spaces_right
+  else: 
+    return " "*spaces + input_str 
+
+
 class LMS():
     def __init__(self, whip):
-    
+
         self.server = Server(hostname="192.168.0.10", port=9090, username=" ", password=" ")
         self.server.connect()
-        self.player = self.server.get_player("00:0f:55:a8:d0:f9")
-        self.connected = self.player.is_connected
+
+        try:
+          self.player = self.server.get_player("00:0f:55:a8:d0:f9")
+        except:
+          self.whip.alert("Vous n'avez pas de player!")
+          Main.menu()
+          #return
 
         self.whip = whip
 
-        if self.connected:
-            choix_menuLMS_no_center =("Pause/play", "Stop", "Next", "Previous", "----------------",
-                       "Regarder la playlist", "Clear la playlist", "----------------",
-                       "Ajouter un titre a la playlist", "Ajouter un album a la playlist", "Chercher un artiste", "----------------",
-                       "Quitter")
-            
-            
-            self.choix_menuLMS = center_text(choix_menuLMS_no_center)
-            self.menu()
-        else:
-            self.whip.alert("Vous n'avez pas de player!")
-            Main.menu()
-            #return
+
+        choix_menuLMS_no_center =("Pause/play", "Stop", "Next", "Previous", "----------------",
+                   "Status page", "Regarder la playlist", "Clear la playlist", "----------------",
+                   "Ajouter un titre a la playlist", "Ajouter un album a la playlist", "Chercher un artiste", "----------------",
+                   "Quitter")
+
+
+        self.choix_menuLMS = center_list(choix_menuLMS_no_center)
+        self.menu()
+
 
     def menu(self):
         selection = self.whip.menu("", self.choix_menuLMS).decode("UTF-8")
@@ -46,19 +70,17 @@ class LMS():
         if selection == self.choix_menuLMS[1]: self.stop()
         if selection == self.choix_menuLMS[2]: self.next()
         if selection == self.choix_menuLMS[3]: self.previous()
-        if selection == self.choix_menuLMS[5]: self.lookpl()
-        if selection == self.choix_menuLMS[6]: self.clearpl()
-        if selection == self.choix_menuLMS[8]: self.title_add()
-        if selection == self.choix_menuLMS[9]: self.album_add()
-        if selection == self.choix_menuLMS[10]: self.artist_lp()
-        
-        if selection == (self.choix_menuLMS[4] or 
-                        self.choix_menuLMS[7] or
-                        self.choix_menuLMS[-2]):
-                        self.menu() #redraw becaus pass will take us back to previous menu
+        if selection == self.choix_menuLMS[5]: self.status_page() #todo
+        if selection == self.choix_menuLMS[6]: self.lookpl()
+        if selection == self.choix_menuLMS[7]: self.clearpl()
+        if selection == self.choix_menuLMS[9]: self.title_add()
+        if selection == self.choix_menuLMS[10]: self.album_add()
+        if selection == self.choix_menuLMS[11]: self.artist_lp()
+        if selection == (self.choix_menuLMS[4] or
+                         self.choix_menuLMS[8] or
+                         self.choix_menuLMS[12]):
+          self.menu() #redraw because pass will take us back to previous menu
         if selection == self.choix_menuLMS[-1]: Main()
-
-
 
     def toggle(self):
         self.player.toggle()
@@ -102,7 +124,6 @@ class LMS():
         result = self.whip.confirm("Voulez vous vraiment faire ca?")
         if result: self.player.playlist_clear()
         self.menu()
-
 
     def title_add(self):
         result = self.whip.prompt("Mettez le titre").decode("UTF-8")
@@ -164,16 +185,107 @@ class LMS():
             self.whip.alert("Erreur, dommage...")
 
         self.menu()
+
+    def status_page(self):
+        #const:
+        #TODO
+
+        player_volume = self.player.get_volume()
+        volume = ("Volume:" if player_volume!=0 else "Volume :")+ str(player_volume) + "%"
+        track_title = self.player.get_track_current_title()
+        track_artist = self.player.get_track_artist()
+        track_album = self.player.get_track_album()
+        track_genre = self.player.get_track_genre()
+        genre = "Genre: " + track_genre
+        track_elapsed = self.player.get_time_elapsed()
+        track_duration = self.player.get_track_duration()
+        time_percent = int(track_elapsed*57/track_duration)
+
+        playlist_not_treated = self.player.playlist_get_info()
+        playlist_treated = []
+
+        for i in range(9):
+            playlist_treated.append(
+                (playlist_not_treated[i]['title'], playlist_not_treated[i]['artist'])
+                )
+
+
+        gauge = list("---------------------------------------------------------")
+        gauge[time_percent] = "*"
+        time_indactor =  "|" + "".join(gauge) + "|"
+
+        music_gauge=(
+            center_text("+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+", 76),
+            center_text('Time_now' + time_indactor+ 'time_max', 76),
+            center_text("+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+", 76)
+        )
+
+        #the char need to be a pair
+        music_now = (
+            "+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+",
+            "|" + center_text(track_title[:28], 30, True) + "|",
+            "|" + center_text("From", 30, True) + "|",
+            "|" + center_text(track_album[:28], 30, True) + "|",
+            "|" + center_text("By", 30, True) + "|",
+            "|" + center_text(track_artist[:28], 30, True) + "|",
+            "|" + center_text("", 30, True) + "|",
+            "|" + genre + center_text("", (30-len(genre))*2, False ) + "|", #Left align
+            "|" + center_text("", 30, True) + "|",
+            "|" + volume + center_text("", (30-len(volume))*2, False ) + "|", #Left align
+            "|" + center_text("", 30, True) + "|",
+            "+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+"
+        )
+
+        next_tracks = (
+            "+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+",
+            "|" + center_text("Next Tracks", 40, True) + "|",
+            "|" + center_text(playlist_treated[0][0][:18] + " by " + playlist_treated[0][1][:18], 40, True) + "|",
+            "|" + center_text(playlist_treated[1][0][:18] + " by " + playlist_treated[1][1][:18], 40, True) + "|",
+            "|" + center_text(playlist_treated[2][0][:18] + " by " + playlist_treated[2][1][:18], 40, True) + "|",
+            "|" + center_text(playlist_treated[3][0][:18] + " by " + playlist_treated[3][1][:18], 40, True) + "|",
+            "|" + center_text(playlist_treated[4][0][:18] + " by " + playlist_treated[4][1][:18], 40, True) + "|",
+            "|" + center_text(playlist_treated[5][0][:18] + " by " + playlist_treated[5][1][:18], 40, True) + "|",
+            "|" + center_text(playlist_treated[6][0][:18] + " by " + playlist_treated[6][1][:18], 40, True) + "|",
+            "|" + center_text(playlist_treated[7][0][:18] + " by " + playlist_treated[7][1][:18], 40, True) + "|",
+            "|" + center_text(playlist_treated[8][0][:18] + " by " + playlist_treated[8][1][:18], 40, True) + "|",
+            "+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+",
+        )
+
+        final_message = (
+            center_text(" ", 76),
+            music_now[0] + " "*2 + next_tracks[0],
+            music_now[1] + " "*2 + next_tracks[1],
+            music_now[2] + " "*2 + next_tracks[2],
+            music_now[3] + " "*2 + next_tracks[3],
+            music_now[4] + " "*2 + next_tracks[4],
+            music_now[5] + " "*2 + next_tracks[5],
+            music_now[6] + " "*2 + next_tracks[6],
+            music_now[7] + " "*2 + next_tracks[7],
+            music_now[8] + " "*2 + next_tracks[8],
+            music_now[9] + " "*2 + next_tracks[9],
+            music_now[10] + " "*2 + next_tracks[10],
+            music_now[11] + " "*2 + next_tracks[11],
+            center_text(" ", 76),
+            music_gauge[0],
+            music_gauge[1],
+            music_gauge[2],
+            center_text(" ", 76)
+        )
+
+        decision = self.whip.confirm("\n".join(final_message), default='no')#TODO: whiptails
         
+        if decision: self.menu()
+        else: self.menu()#TODO: album cover
+
 class Main():
     def __init__(self):
-        
- 
+
+
         self.whip = Whiptail("Le Minitel des Hilkens", backtitle="B.Hilkens 2021", height=24, width= 80)
 
         choix_menuMain_no_center = ("Music","other...", "Quitter")
 
-        self.choix_menuMain = center_text(choix_menuMain_no_center)
+        self.choix_menuMain = center_list(choix_menuMain_no_center)
 
         self.menu()
 
