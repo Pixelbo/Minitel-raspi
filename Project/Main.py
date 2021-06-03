@@ -2,7 +2,6 @@
 # -*- coding: iso-8859-1 -*-
 
 from whiptail import Whiptail
-import threading
 import time
 from pylms.server import Server
 from pylms.player import Player
@@ -192,14 +191,6 @@ class LMS():
             self.whip.alert("Erreur, dommage...")
 
         self.menu()
-        
-    
-    def updater_status(self):
-        time.sleep(1)
-        self.update= True
-        self.whip.p.terminate()
-          
-      #print("ended")
           
     def status_page(self):
         #const:
@@ -211,8 +202,13 @@ class LMS():
         track_artist = self.player.get_track_artist()
         track_album = self.player.get_track_album()
         track_genre = self.player.get_track_genre()
-        genre = "Genre: " + track_genre
+        genre = ("Genre: " + track_genre) if track_genre != "No Genre" else ""
         track_elapsed = self.player.get_time_elapsed()
+        
+        if int(track_elapsed) < 10: track_elapsed_str =   "00" + str(int(track_elapsed))
+        elif int(track_elapsed) < 100: track_elapsed_str =  "0" + str(int(track_elapsed))
+        else: track_elapsed_str = str(int(track_elapsed))
+          
         track_duration = self.player.get_track_duration()
         time_percent = int(track_elapsed*56/track_duration)
 
@@ -220,9 +216,14 @@ class LMS():
         playlist_treated = []
 
         for i in range(9):
+          try:
             playlist_treated.append(
-                (playlist_not_treated[i]['title'], playlist_not_treated[i]['artist'])
+                (playlist_not_treated[i]['title'], " by ",  playlist_not_treated[i]['artist'])
                 )
+          except IndexError:
+            playlist_treated.append(
+              (" ", " ", " ")
+            )
 
 
         gauge = list("---------------------------------------------------------")
@@ -231,7 +232,7 @@ class LMS():
 
         music_gauge=(
             center_text("+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+", 76),
-            center_text(str(int(track_elapsed)) + " " + time_indactor+ " " + str(int(track_duration)), 76),
+            center_text(track_elapsed_str + " " + time_indactor+ " " + str(int(track_duration)), 76),
             center_text("+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+", 76)
         )
 
@@ -254,15 +255,15 @@ class LMS():
         next_tracks = (
             "+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+",
             "|" + center_text("Next Tracks", 40, True) + "|",
-            "|" + center_text(playlist_treated[0][0][:18] + " by " + playlist_treated[0][1][:18], 40, True) + "|",
-            "|" + center_text(playlist_treated[1][0][:18] + " by " + playlist_treated[1][1][:18], 40, True) + "|",
-            "|" + center_text(playlist_treated[2][0][:18] + " by " + playlist_treated[2][1][:18], 40, True) + "|",
-            "|" + center_text(playlist_treated[3][0][:18] + " by " + playlist_treated[3][1][:18], 40, True) + "|",
-            "|" + center_text(playlist_treated[4][0][:18] + " by " + playlist_treated[4][1][:18], 40, True) + "|",
-            "|" + center_text(playlist_treated[5][0][:18] + " by " + playlist_treated[5][1][:18], 40, True) + "|",
-            "|" + center_text(playlist_treated[6][0][:18] + " by " + playlist_treated[6][1][:18], 40, True) + "|",
-            "|" + center_text(playlist_treated[7][0][:18] + " by " + playlist_treated[7][1][:18], 40, True) + "|",
-            "|" + center_text(playlist_treated[8][0][:18] + " by " + playlist_treated[8][1][:18], 40, True) + "|",
+            "|" + center_text(playlist_treated[0][0][:18] + playlist_treated[0][1] + playlist_treated[0][2][:18], 40, True) + "|",
+            "|" + center_text(playlist_treated[1][0][:18] + playlist_treated[1][1] + playlist_treated[1][2][:18], 40, True) + "|", 
+            "|" + center_text(playlist_treated[2][0][:18] + playlist_treated[2][1] + playlist_treated[2][2][:18], 40, True) + "|",
+            "|" + center_text(playlist_treated[3][0][:18] + playlist_treated[3][1] + playlist_treated[3][2][:18], 40, True) + "|",
+            "|" + center_text(playlist_treated[4][0][:18] + playlist_treated[4][1] + playlist_treated[4][2][:18], 40, True) + "|",
+            "|" + center_text(playlist_treated[5][0][:18] + playlist_treated[5][1] + playlist_treated[5][2][:18], 40, True) + "|",
+            "|" + center_text(playlist_treated[6][0][:18] + playlist_treated[6][1] + playlist_treated[6][2][:18], 40, True) + "|",
+            "|" + center_text(playlist_treated[7][0][:18] + playlist_treated[7][1] + playlist_treated[7][2][:18], 40, True) + "|",
+            "|" + center_text(playlist_treated[8][0][:18] + playlist_treated[8][1] + playlist_treated[8][2][:18], 40, True) + "|",
             "+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+",
         )
 
@@ -286,23 +287,12 @@ class LMS():
             music_gauge[2],
             center_text(" ", 76)
         )   
-        self.updater = threading.Thread(target=self.updater_status)   
-             
-        if self.update:
-          self.update=False
-          print(self.updater.is_alive())
-          
-        self.updater.start()
-        decision = self.whip.confirm("\n".join(final_message), default='no')#TODO: whiptails
-        
-        if self.update:
-          #print(self.updater.is_alive())
-          self.menu(overdrive=self.choix_menuLMS[5])
-        else:
-          self.stop_threads = True
-          self.updater.join()
-          if decision: self.menu()
-          else: self.menu()#TODO: album cover
+
+
+        decision = self.whip.confirm("\n".join(final_message), extras=("Quit", "Refresh"))#TODO: whiptails
+
+        if decision: self.menu()
+        else: self.status_page()#TODO: album cover
 
 class Main():
     def __init__(self):
