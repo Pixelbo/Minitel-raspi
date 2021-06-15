@@ -1,2 +1,2 @@
 
-#todo: faire un bon readme
+#todo: faire un bon setup
