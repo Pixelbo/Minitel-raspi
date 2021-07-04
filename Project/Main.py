@@ -2,6 +2,7 @@
 # -*- coding: iso-8859-1 -*-
 
 from whiptail import Whiptail
+import threading
 import time
 from pylms.server import Server
 from pylms.player import Player
@@ -20,29 +21,27 @@ def center_list(input_list): #Outputs a list with *space required to have the te
 
 def center_text(input_str, max_chars=None, both_side=False): #Outputs a string with *space required to have the text centered
 
+  if len(input_str)%2 != 0 : input_str += " "
+
   if max_chars==None: max_chars= int(len(max(input_str, key=len))/2)
-  
+
   spaces = int(max_chars/2-len(input_str)/2)
 
-  if ((spaces % 2) == 0):
-    spaces = spaces
-    spaces_right = spaces if ((len(input_str)%2) == 0) else spaces+1
-  else:
-    spaces = spaces-1
-    spaces_right = spaces+2
+  spaces_left = spaces
+  spaces_right = spaces if ((len(input_str)%2) == 0) else spaces+1
 
-    
-  if both_side: 
-    return " "*spaces + input_str + " "*spaces_right
-  else: 
-    return " "*spaces + input_str 
+  if both_side:
+    return " "*spaces_left + input_str + " "*spaces_right
+  else:
+    return " "*spaces_left + input_str
 
 
 class LMS():
     def __init__(self, whip):
-        
+
         self.update = False
-        
+        self.stop_threads = False
+
         self.server = Server(hostname="192.168.0.10", port=9090, username=" ", password=" ")
         self.server.connect()
 
@@ -65,6 +64,17 @@ class LMS():
         self.choix_menuLMS = center_list(choix_menuLMS_no_center)
         self.menu()
 
+    def updater_status(self):
+        prev = self.player.get_track_current_title()
+        while True:
+            if self.player.get_track_current_title()!= prev:
+                self.update= True
+                self.whip.p.terminate()
+                break
+            if self.stop_threads:
+                self.stop_threads = False
+                break
+            time.sleep(1)
 
     def menu(self, overdrive=None):
         if overdrive != None:
@@ -163,10 +173,8 @@ class LMS():
 
         try:
             result = self.whip.menu("Resultats de recherche" ,album_list_treated).decode("UTF-8")
-            print()
             album_ar = album_list[album_list_treated.index(result)]['artist']
             album = album_list[album_list_treated.index(result)]['album']
-            print(album_ar, album)
             self.player.playlist_addalbum(None, album_ar, album)
 
         except IndexError:
@@ -184,14 +192,14 @@ class LMS():
             artists_treated.append("%s" % (artists[i]['artist']))
 
         try:
-            result = self.whip.showlist("radiolist", "Resultats de recherche" ,artists_treated , "")
+            self.whip.showlist("radiolist", "Resultats de recherche" ,artists_treated , "")
         except IndexError:
             self.whip.alert("Mauvais recherche, dommage...")
-        except:
-            self.whip.alert("Erreur, dommage...")
+##        except:
+##            self.whip.alert("Erreur, dommage...")
 
         self.menu()
-          
+
     def status_page(self):
         #const:
         #TODO
@@ -203,19 +211,11 @@ class LMS():
         track_album = self.player.get_track_album()
         track_genre = self.player.get_track_genre()
         genre = ("Genre: " + track_genre) if track_genre != "No Genre" else ""
-        track_elapsed = self.player.get_time_elapsed()
-        
-        if int(track_elapsed) < 10: track_elapsed_str =   "00" + str(int(track_elapsed))
-        elif int(track_elapsed) < 100: track_elapsed_str =  "0" + str(int(track_elapsed))
-        else: track_elapsed_str = str(int(track_elapsed))
-          
-        track_duration = self.player.get_track_duration()
-        time_percent = int(track_elapsed*56/track_duration)
 
         playlist_not_treated = self.player.playlist_get_info()
         playlist_treated = []
 
-        for i in range(9):
+        for i in range(1,10):
           try:
             playlist_treated.append(
                 (playlist_not_treated[i]['title'], " by ",  playlist_not_treated[i]['artist'])
@@ -225,16 +225,6 @@ class LMS():
               (" ", " ", " ")
             )
 
-
-        gauge = list("---------------------------------------------------------")
-        gauge[time_percent] = "*"
-        time_indactor =  "|" + "".join(gauge) + "|"
-
-        music_gauge=(
-            center_text("+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+", 76),
-            center_text(track_elapsed_str + " " + time_indactor+ " " + str(int(track_duration)), 76),
-            center_text("+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+", 76)
-        )
 
         #the char need to be a pair
         music_now = (
@@ -256,7 +246,7 @@ class LMS():
             "+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+",
             "|" + center_text("Next Tracks", 40, True) + "|",
             "|" + center_text(playlist_treated[0][0][:18] + playlist_treated[0][1] + playlist_treated[0][2][:18], 40, True) + "|",
-            "|" + center_text(playlist_treated[1][0][:18] + playlist_treated[1][1] + playlist_treated[1][2][:18], 40, True) + "|", 
+            "|" + center_text(playlist_treated[1][0][:18] + playlist_treated[1][1] + playlist_treated[1][2][:18], 40, True) + "|",
             "|" + center_text(playlist_treated[2][0][:18] + playlist_treated[2][1] + playlist_treated[2][2][:18], 40, True) + "|",
             "|" + center_text(playlist_treated[3][0][:18] + playlist_treated[3][1] + playlist_treated[3][2][:18], 40, True) + "|",
             "|" + center_text(playlist_treated[4][0][:18] + playlist_treated[4][1] + playlist_treated[4][2][:18], 40, True) + "|",
@@ -282,17 +272,33 @@ class LMS():
             music_now[10] + " "*2 + next_tracks[10],
             music_now[11] + " "*2 + next_tracks[11],
             center_text(" ", 76),
-            music_gauge[0],
-            music_gauge[1],
-            music_gauge[2],
+            center_text(" ", 76),
+            center_text(" ", 76),
+            center_text(" ", 76),
             center_text(" ", 76)
-        )   
+        )
 
 
-        decision = self.whip.confirm("\n".join(final_message), extras=("Quit", "Refresh"))#TODO: whiptails
+        self.updater = threading.Thread(target=self.updater_status)
 
-        if decision: self.menu()
-        else: self.status_page()#TODO: album cover
+        if self.update:
+          self.update=False
+
+
+        self.updater.start()
+
+        decision = self.whip.confirm("\n".join(final_message), extras=("Quit", "Quit"))
+
+        if self.update:
+          self.menu(overdrive=self.choix_menuLMS[5])
+        else:
+          self.stop_threads = True
+          self.updater.join()
+          if decision: self.menu()
+          else: self.menu()#TODO: album cover
+
+##        if decision: self.menu()
+##        else: self.status_page()#TODO: album cover
 
 class Main():
     def __init__(self):
