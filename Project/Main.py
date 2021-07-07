@@ -315,11 +315,11 @@ class LMS():
             playlists_url = [playlists[1][i+1]['url'] for i in range(nb_playlists)]
             playlists_id = [playlists[1][i+1]['id'] for i in range(nb_playlists)]
 
-            selection = self.whip.menu("Manageur de playlist", playlists_name, extras=()).decode("UTF-8")
+            selection = self.whip.menu("Manageur de playlist", center_list(playlists_name), extras=()).decode("UTF-8")
 
             pl_options = ("Jouer cete playlist", "Editer cette playlist", "Rename la playlist", "Supprimmer cette playlist", "Retour")
 
-            choix = self.whip.menu("Manageur de playlist: " + selection, pl_options, extras=()).decode("UTF-8")
+            choix = self.whip.menu("Manageur de playlist: " + selection, center_list(pl_options), extras=()).decode("UTF-8")
 
             if choix == pl_options[0]: self.server.request(self.mac_ + " playlist add " + playlists_url[playlists_name.index(selection)])
             if choix == pl_options[1]:
@@ -334,15 +334,12 @@ class LMS():
                 track_sel = self.whip.menu("Editeur de playlist: "+ selection, pl_tracks_info, extras=()).decode("UTF-8")
 
                 track_option = ("Jouer ce morceau", "Suprimer le morceau de liste", "Mettre le morceau au-dessus", "Mettre le morceau en-dessous")
+                edit_sel = self.whip.menu("Editeur de playlist: "+ selection, center_list(track_option), extras=()).decode("UTF-8")
 
-                edit_sel = self.whip.menu("Editeur de playlist: "+ selection, track_option, extras=()).decode("UTF-8")
-
-                if edit_sel == track_option[0]: self.player.playlist_play(pl_tracks_url[pl_tracks_info.index(track_sel)])
-                if edit_sel == track_option[1]: self.server.request("playlists edit platlist_id:{} cmd:delete index:{}".format(playlists_id[playlists_name.index(selection)], pl_tracks_info.index(track_sel)+1))
-                if edit_sel == track_option[2]: self.server.request("playlists edit platlist_id:{} cmd:up index:{}".format(playlists_id[playlists_name.index(selection)], pl_tracks_info.index(track_sel)+1))
-                if edit_sel == track_option[3]: self.server.request("playlists edit platlist_id:{} cmd:down index:{}".format(playlists_id[playlists_name.index(selection)], pl_tracks_info.index(track_sel)+1))
-
-
+                if edit_sel == center_list(track_option)[0]: self.player.playlist_play(pl_tracks_url[pl_tracks_info.index(track_sel)])
+                if edit_sel == center_list(track_option)[1]: self.server.request("playlists edit cmd:delete playlist_id:{} index:{}".format(playlists_id[playlists_name.index(selection)], pl_tracks_info.index(track_sel)+1))
+                if edit_sel == center_list(track_option)[2]: self.server.request("playlists edit cmd:up playlist_id:{} index:{}".format(playlists_id[playlists_name.index(selection)], pl_tracks_info.index(track_sel)+1))
+                if edit_sel == center_list(track_option)[3]: self.server.request("playlists edit cmd:down playlist_id:{} index:{}".format(playlists_id[playlists_name.index(selection)], pl_tracks_info.index(track_sel)+1))
 
         except Exception as e:
             print(e)
