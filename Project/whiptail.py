@@ -62,12 +62,12 @@ class Whiptail(object):
         height_offset = 8 if msg else 7
         return [str(self.height - height_offset)]
 
-    def menu(self, msg='', items=(), prefix=' - '):
+    def menu(self, msg='', items=(), extras =(''),prefix=' - '):
         if isinstance(items[0], string_types):
             items = [(i, '') for i in items]
         else:
             items = [(k, prefix + v) for k, v in items]
-        extra = self.calc_height(msg) + flatten(items)
+        extra = self.calc_height(msg) + flatten(items) + list(extras)
         return self.run('menu', msg, extra).value
 
     def showlist(self, control, msg, items, prefix):

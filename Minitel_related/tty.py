@@ -19,7 +19,7 @@ import sys, os, subprocess, ctypes
 
 port = sys.argv[1] if len(sys.argv) >= 2 else 'ttyUSB0'
 user = sys.argv[2] if len(sys.argv) >= 3 else 'pi'
-minitel = '/dev/'+port
+minitel = '/dev/' + port
 term = 'm1b-x80'
 lang = 'fr_FR.iso88591'
 baudrate = 4800
@@ -74,8 +74,8 @@ conv[0xA5] = b'Y'  # yen sign
 conv[0xAB] = b'"'  # opening guillemet
 conv[0xBB] = b'"'  # closing guillemet
 conv[0xAC] = b'-'  # negation sign
-conv[0xB2] = b'^2' # square sign
-conv[0xB3] = b'^3' # cube sign
+conv[0xB2] = b'^2'  # square sign
+conv[0xB3] = b'^3'  # cube sign
 conv[0xB9] = b'^1'
 
 # Windows-1252 specific
@@ -94,26 +94,26 @@ conv[0xBD] = b'oe'
 conv[0xBE] = b'Y'
 
 # Special characters
-conv[0xE0] = b'\x0E\x40\x0F' # small a grave
-conv[0xE8] = b'\x0E\x7D\x0F' # small e grave
-conv[0xE9] = b'\x0E\x7B\x0F' # small e acute
-conv[0xF9] = b'\x0E\x7C\x0F' # small u grave
-conv[0xE7] = b'\x0E\x5C\x0F' # small c cedilla
-conv[0xB0] = b'\x0E\x5B\x0F' # degree sign
-conv[0xBA] = b'\x0E\x5B\x0F' # ordinal indicator
-conv[0xA3] = b'\x0E\x23\x0F' # pound sterling sign
-conv[0xA7] = b'\x0E\x5D\x0F' # section sign
+conv[0xE0] = b'\x0E\x40\x0F'  # small a grave
+conv[0xE8] = b'\x0E\x7D\x0F'  # small e grave
+conv[0xE9] = b'\x0E\x7B\x0F'  # small e acute
+conv[0xF9] = b'\x0E\x7C\x0F'  # small u grave
+conv[0xE7] = b'\x0E\x5C\x0F'  # small c cedilla
+conv[0xB0] = b'\x0E\x5B\x0F'  # degree sign
+conv[0xBA] = b'\x0E\x5B\x0F'  # ordinal indicator
+conv[0xA3] = b'\x0E\x23\x0F'  # pound sterling sign
+conv[0xA7] = b'\x0E\x5D\x0F'  # section sign
 
 # Special keys (0x13) conversion table
 buttons = {}
-buttons[0x41] = b'\x0D' # ENVOI
-buttons[0x42] = b'\x1B' # RETOUR
-buttons[0x43] = b'\x1BOS' # REPETITION
-buttons[0x44] = b'\x1BOm' # GUIDE
-buttons[0x45] = b'\x18' # ANNULATION
-buttons[0x46] = b'\x1BOP' # SOMMAIRE
-buttons[0x47] = b'\x08' # CORRECTION
-buttons[0x48] = b'\x0D' # SUITE
+buttons[0x41] = b'\x0D'  # ENVOI
+buttons[0x42] = b'\x1B'  # RETOUR
+buttons[0x43] = b'\x1BOS'  # REPETITION
+buttons[0x44] = b'\x1BOm'  # GUIDE
+buttons[0x45] = b'\x18'  # ANNULATION
+buttons[0x46] = b'\x1BOP'  # SOMMAIRE
+buttons[0x47] = b'\x08'  # CORRECTION
+buttons[0x48] = b'\x0D'  # SUITE
 
 # Open a TTY for the user shell
 master, slave = os.openpty()
@@ -128,7 +128,10 @@ ignpar icrnl -ixon ixany -opost cread hupcl isig cbreak min 1 \
 
 # Run a shell for the specified user
 libc = ctypes.CDLL('libc.so.6')
-p = subprocess.Popen(['bash', '-c', 'export TERM=\'{}\'; export LANG=\'{}\'; while true; do clear; cd \'{}\'; runuser -l \'{}\'; sleep 1; done'.format(term, lang, '/home/'+user, user)], stdin=slave, stdout=slave, stderr=slave, bufsize=0, preexec_fn=libc.setsid)
+p = subprocess.Popen(['bash', '-c',
+                      'export TERM=\'{}\'; export LANG=\'{}\'; while true; do clear; cd \'{}\'; runuser -l \'{}\'; sleep 1; done'.format(
+                          term, lang, '/home/' + user, user)], stdin=slave, stdout=slave, stderr=slave, bufsize=0,
+                     preexec_fn=libc.setsid)
 
 pid = os.fork()
 if pid:
@@ -136,17 +139,18 @@ if pid:
     r = open(minitel, 'rb', 0)
     while 1:
         c = r.read(1)
-        #print(c)
+        # print(c)
         if len(c) == 0:
             break
-        if ord(c) == 0x03 or ord(c) == 0x18: # divert ctrl-C and ctrl-X and send SIGINT
+        if ord(c) == 0x03 or ord(c) == 0x18:  # divert ctrl-C and ctrl-X and send SIGINT
             try:
-                fgid = int(subprocess.check_output(['ps', 'h', '-t', ttyname, '-o', 'tpgid']).decode(sys.stdout.encoding).split('\n')[0])
-                subprocess.call(['kill', '-INT', '-'+str(fgid)])
+                fgid = int(subprocess.check_output(['ps', 'h', '-t', ttyname, '-o', 'tpgid']).decode(
+                    sys.stdout.encoding).split('\n')[0])
+                subprocess.call(['kill', '-INT', '-' + str(fgid)])
             except Exception as e:
                 print(e)
             continue
-        elif ord(c) == 0x13: # Special buttons in mixed mode
+        elif ord(c) == 0x13:  # Special buttons in mixed mode
             c = r.read(1)
             if not ord(c) in buttons:
                 continue
@@ -154,7 +158,7 @@ if pid:
         w.write(c)
         w.flush()
 else:
-    r = os.fdopen(master,  'rb', 0)
+    r = os.fdopen(master, 'rb', 0)
     w = open(minitel, 'wb', 0)
     while 1:
         c = r.read(1)
@@ -163,7 +167,7 @@ else:
         if ord(c) in conv:
             c = conv[ord(c)]
         elif ord(c) >= 0xA0:
-            c = b' ' # placeholder
+            c = b' '  # placeholder
         elif ord(c) >= 0x80:
             continue
         w.write(c)
