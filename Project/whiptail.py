@@ -1,6 +1,7 @@
 # whiptail.py - Use whiptail to display dialog boxes from shell scripts
 # Copyright (C) 2013 Marwan Alsabbagh
 # license: BSD, see LICENSE for more details.
+#Yeah I modified it
 
 from __future__ import print_function
 

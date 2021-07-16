@@ -12,131 +12,133 @@ class LMS:
         self.port_ = port
         self.mac_ = mac
 
-        self.update = False
-        self.stop_threads = False
+        self.update = False  # Var to check if there is an update
+        self.stop_threads = False #self-explaining
 
-        self.whip = whip
+        self.whip = whip #We keep the same whiptail object through the code
 
-        try:
+        try: #trying to connect to the server
             self.server = Server(hostname=self.hostname_, port=self.port_, username=" ", password=" ")
             self.server.connect()
-        except Exception as e:
+        except Exception as e: #if no server then alert an error and return back to main menu
             self.whip.alert("Vous n'avez pas de player! \n Erreur: " + str(e))
             return
 
-        try:
+        try: #trying to connect to the player
             self.player = self.server.get_player(self.mac_)
-        except Exception as e:
+        except Exception as e: #if no player then alert an error and return back to main menu
             self.whip.alert("Vous n'avez pas de player! \n Erreur: " + str(e))
             # Main()
             return
 
-        choix_menuLMS_no_center = ("Pause/play", "Stop", "Next", "Previous", "----------------",
-                                   "Status page", "Regarder la playlist", "Clear la playlist", "Manageur de playlists",
-                                   "----------------",
-                                   "Ajouter un titre a la playlist", "Ajouter un album a la playlist",
-                                   "Chercher un artiste", "----------------",
-                                   "Quitter")
-
-        self.choix_menuLMS = text_utils.center_list(choix_menuLMS_no_center)
         self.menu()
+        return #Todo: need to be check in test
 
-    def updater_status(self):
+    def updater_status(self): #Simple 2nd thread to check if the track had changed
         prev = self.player.get_track_current_title()
         while True:
-            if self.player.get_track_current_title() != prev:
-                self.update = True
-                self.whip.p.terminate()
+            if self.player.get_track_current_title() != prev: #if it's changed
+                self.update = True #well, there is an update
+                self.whip.p.terminate() #terminate the status_page whiptail to redraw
                 break
-            if self.stop_threads:
+            if self.stop_threads: #if the stop_thread var is up then stop with break
                 self.stop_threads = False
                 break
             time.sleep(1)
 
     def menu(self, overdrive=None):
-        if overdrive is not None:
-            selection = overdrive
-        else:
-            selection = self.whip.menu("", self.choix_menuLMS).decode("UTF-8")
+        # Choice for the menu (not centered)
+        choix_menuLMS_no_center = ("Pause/play", "Stop", "Next", "Previous",
+                                   "----------------",
+                                   "Status page", "Regarder la playlist", "Clear la playlist", "Manageur de playlists",
+                                   "----------------",
+                                   "Ajouter un titre a la playlist", "Ajouter un album a la playlist",
+                                   "Chercher un artiste",
+                                   "----------------",
+                                   "Quitter")
 
-        if selection == self.choix_menuLMS[0]: self.toggle()  # TODO: better selection method
-        if selection == self.choix_menuLMS[1]: self.stop()
-        if selection == self.choix_menuLMS[2]: self.next()
-        if selection == self.choix_menuLMS[3]: self.previous()
-        if selection == self.choix_menuLMS[5]: self.status_page()  # todo
-        if selection == self.choix_menuLMS[6]: self.lookpl()
-        if selection == self.choix_menuLMS[7]: self.clearpl()
-        if selection == self.choix_menuLMS[8]: self.playlist_manager()
-        if selection == self.choix_menuLMS[10]: self.title_add()
-        if selection == self.choix_menuLMS[11]: self.album_add()
-        if selection == self.choix_menuLMS[12]: self.artist_lp()
-        if selection == (self.choix_menuLMS[4] or
-                         self.choix_menuLMS[9] or
-                         self.choix_menuLMS[13]):
-            self.menu()  # redraw because pass will take us back to previous menu
-        if selection == self.choix_menuLMS[-1]: return  # Main()
+        choix_menuLMS = text_utils.center_list(choix_menuLMS_no_center)  # Center the menu
 
-        self.menu()
+        selection = self.whip.menu("", choix_menuLMS).decode("UTF-8")
 
-    def toggle(self):
+        if selection == choix_menuLMS[0]: self.toggle()  # TODO: better selection method
+        if selection == choix_menuLMS[1]: self.stop()
+        if selection == choix_menuLMS[2]: self.next()
+        if selection == choix_menuLMS[3]: self.previous()
+        if selection == choix_menuLMS[5]: self.status_page()  # todo
+        if selection == choix_menuLMS[6]: self.lookpl()
+        if selection == choix_menuLMS[7]: self.clearpl()
+        if selection == choix_menuLMS[8]: self.playlist_manager()
+        if selection == choix_menuLMS[10]: self.title_add()
+        if selection == choix_menuLMS[11]: self.album_add()
+        if selection == choix_menuLMS[12]: self.artist_lp()
+        if selection == (choix_menuLMS[4] or
+                         choix_menuLMS[9] or
+                         choix_menuLMS[13]):
+            self.menu()  # redraw because retur will take us back to previous menu
+        if selection == choix_menuLMS[-1]: return  # go to __Init__ then to Main()
+
+        self.menu() #Loop-back
+
+    def toggle(self): #like, it's litteraly the name
         self.player.toggle()
         return
 
-    def stop(self):
+    def stop(self):# again
         self.player.stop()
         return
 
-    def next(self):
+    def next(self): #and again
         self.player.next()
         return
 
-    def previous(self):
+    def previous(self): #and again
         self.player.prev()
         return
 
-    def lookpl(self):
-        playlist_not_treated = self.player.playlist_get_info()
-        playlist_treated = []
+    def lookpl(self): #We want to look at our current playlist
+        playlist_not_treated = self.player.playlist_get_info() #not_treated because not parsed for showing to screen
+        playlist_treated = [] #init
 
         for i in range(len(playlist_not_treated)):
-            playlist_treated.append(
-                "%s from %s by %s" % (
-                    playlist_not_treated[i]['title'], playlist_not_treated[i]['album'],
+            playlist_treated.append("{} from {} by {}".format(
+                    playlist_not_treated[i]['title'],
+                    playlist_not_treated[i]['album'],
                     playlist_not_treated[i]['artist'])
             )
 
         try:
-            result = self.whip.showlist("radiolist",
-                                        "Voici la playist actuelle, il y a %i titres, cocher des cases ne sert a rien" % (
-                                            self.player.playlist_track_count(),)
-                                        , playlist_treated, "")
+            self.whip.showlist("radiolist",
+                               "Voici la playist actuelle, il y a {} titres, cocher des cases ne sert a rien".format(
+                               self.player.playlist_track_count()) # track_count shown in the title
+                               , playlist_treated, #list to show
+                               "") #no parameters
 
         except IndexError:
             self.whip.alert("Il y a rien dans la playlist, dommage...")
-
-        except:
-            pass
+        except Exception as e:
+            self.whip.alert("Erreur, dommage! \n Erreur: " + str(e))
 
         return
 
-    def clearpl(self):
-        result = self.whip.confirm("Voulez vous vraiment faire ca?")
+    def clearpl(self): #Clear the playlist
+        result = self.whip.confirm("Voulez vous vraiment faire ca?") #Return bool
         if result: self.player.playlist_clear()
         return
 
-    def title_add(self):
-        result = self.whip.prompt("Mettez le titre").decode("UTF-8")
-        song_list = self.server.search(result, mode="songs")[1]
-        song_list_treated = []
+    def title_add(self): #We want to add a title
+        result = self.whip.prompt("Mettez le titre").decode("UTF-8") #Prompt for a title and decode it
+        song_list = self.server.search(result, mode="songs")[1] #Search function within the LMS lib
+        song_list_treated = [] #Same as lookpl()
 
         for i in range(len(song_list)):
             song_list_treated.append(
                 "%s from %s by %s" % (song_list[i]['title'], song_list[i]['album'], song_list[i]['artist']))
 
         try:
-            result = self.whip.menu("Resultats de recherche", song_list_treated).decode("UTF-8")
-            song = song_list[song_list_treated.index(result)]['url']
-            appendd = self.whip.confirm("Voulez-vous jouer ce titre maintenant? ")
+            result = self.whip.menu("Resultats de recherche", song_list_treated).decode("UTF-8") #Prints the result and get the name
+            song = song_list[song_list_treated.index(result)]['url'] #get the url of the song with the index function
+            appendd = self.whip.confirm("Voulez-vous jouer ce titre maintenant? ") #Do we want to append the title to te playlist or play it now?
             if not appendd:
                 self.player.playlist_add(song)
             else:
@@ -144,18 +146,18 @@ class LMS:
 
         except IndexError:
             self.whip.alert("Mauvaise recherche, dommage...")
-        except:
-            self.whip.alert("Erreur, dommage...")
+        except Exception as e:
+            self.whip.alert("Vous n'avez pas de player! \n Erreur: " + str(e))
 
         return
 
-    def album_add(self):
+    def album_add(self): # We want to add a full album; It's a litteral copy of the previous function
         result = self.whip.prompt("Mettez le titre de l'album").decode("UTF-8")
         album_list = self.server.search(result, mode="albums")[1]
         album_list_treated = []
 
         for i in range(len(album_list)):
-            album_list_treated.append(" %s by %s" % (album_list[i]['album'], album_list[i]['artist']))
+            album_list_treated.append(" {} by {}" .format(album_list[i]['album'], album_list[i]['artist']))
 
         try:
             result = self.whip.menu("Resultats de recherche", album_list_treated).decode("UTF-8")
@@ -165,31 +167,30 @@ class LMS:
 
         except IndexError:
             self.whip.alert("Mauvais recherche, dommage...")
-        except:
-            self.whip.alert("Erreur, dommage...")
+        except Exception as e:
+            self.whip.alert("Vous n'avez pas de player! \n Erreur: " + str(e))
 
         return
 
-    def artist_lp(self):
-        result = self.whip.prompt("Mettez l'artist").decode("UTF-8")
-        artists = self.server.search(result, mode="artists")[1]
-        artists_treated = []
+    def artist_lp(self): #We want to look up a artist in db
+        result = self.whip.prompt("Mettez l'artist").decode("UTF-8") #Prompt for the artist to lookup
+        artists = self.server.search(result, mode="artists")[1] #search but with te artist param
+        artists_treated = [] #same as before
         for i in range(len(artists)):
             artists_treated.append("%s" % (artists[i]['artist']))
 
-        try:
+        try: #show it
             self.whip.showlist("radiolist", "Resultats de recherche", artists_treated, "")
         except IndexError:
             self.whip.alert("Mauvais recherche, dommage...")
-        except:
-            self.whip.alert("Erreur, dommage...")
+        except Exception as e:
+            self.whip.alert("Vous n'avez pas de player! \n Erreur: " + str(e))
 
         return
 
-    def status_page(self):
-        # const:
-        #
+    def status_page(self): #OMG it's complicated; it's a status page to see what is playling right now
 
+        #Get various ingo and parse it
         player_volume = self.player.get_volume()
         volume = ("Volume:" if player_volume != 0 else "Volume :") + str(player_volume) + "%"
         track_title = self.player.get_track_current_title()
@@ -198,10 +199,11 @@ class LMS:
         track_genre = self.player.get_track_genre()
         genre = ("Genre: " + track_genre) if track_genre != "No Genre" else ""
 
-        if not track_title:
+        if not track_title: #if there is nothing thn don't bother to draw everything
             self.whip.alert("Il y a pas de musique en cours!")
             return
 
+        #Get the playlist like the fnction that does that
         playlist_not_treated = self.player.playlist_get_info()
         playlist_treated = []
 
@@ -210,12 +212,12 @@ class LMS:
                 playlist_treated.append(
                     (playlist_not_treated[i]['title'], " by ", playlist_not_treated[i]['artist'])
                 )
-            except IndexError:
+            except IndexError: #if there is nothing then it's just blank
                 playlist_treated.append(
                     (" ", " ", " ")
                 )
 
-        # the char need to be a pair
+        # window to see current track
         music_now = (
             "+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+",
             "|" + text_utils.center_text(track_title[:28], 30, True) + "|",
@@ -231,7 +233,7 @@ class LMS:
             "+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+"
         )
 
-        next_tracks = (
+        next_tracks = ( #Window to see next tracks
             "+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+",
             "|" + text_utils.center_text("Next Tracks", 40, True) + "|",
             "|" + text_utils.center_text(
@@ -255,7 +257,7 @@ class LMS:
             "+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+",
         )
 
-        final_message = (
+        final_message = ( #Avengers, Assemble!
             text_utils.center_text(" ", 76),
             music_now[0] + " " * 2 + next_tracks[0],
             music_now[1] + " " * 2 + next_tracks[1],
@@ -271,31 +273,31 @@ class LMS:
             music_now[11] + " " * 2 + next_tracks[11],
             text_utils.center_text(" ", 76),
             text_utils.center_text(" ", 76),
-            text_utils.center_text(" ", 76),
+            text_utils.center_text(" ", 76), #Black, can be other info
             text_utils.center_text(" ", 76),
             text_utils.center_text(" ", 76)
         )
 
-        self.updater = threading.Thread(target=self.updater_status)
+        self.updater = threading.Thread(target=self.updater_status) #init the thread
 
-        if self.update:
+        if self.update: #un-check the update var
             self.update = False
 
-        self.updater.start()
+        self.updater.start() #start the updater
 
-        decision = self.whip.confirm("\n".join(final_message), extras=("Quit", "Quit"))
-
-        if self.update:
+        decision = self.whip.confirm("\n".join(final_message), extras=("Quit", "Quit")) #Join the message with \n
+        #When we terminate the whip process, the code below gets executed
+        if self.update: #if there is an update redraw
             self.status_page()
-        else:
+        else:#else, it's an user input then stop threads
             self.stop_threads = True
             self.updater.join()
-            if decision:
+            if decision: #Can have more things here
                 return
             else:
                 return
 
-    def playlist_manager(self):
+    def playlist_manager(self): #OMG it's like the inception of whiptails; lazy to comment and to do the clean up here and to test too
         try:
 
             playlists = self.server.request_with_results("playlists 0 50 tags:u")

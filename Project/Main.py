@@ -10,8 +10,9 @@ from whiptail import Whiptail
 
 # MEMO writable char: max_h = 18
 #                     max_w = 76
+#This is when there is a whiptail windows
 
-class Main():
+class Main:
     def __init__(self):
         self.config = configparser.ConfigParser()
         self.config.read("options.ini")
@@ -32,9 +33,9 @@ class Main():
         if selection == self.choix_menuMain[-1]: exit()
 
     def start_LMS(self):
-        host = self.language = self.config['LMS']['hostname']
-        port = self.language = self.config['LMS']['port']
-        mac = self.language = self.config['LMS']['mac']
+        host = self.config['LMS']['hostname']
+        port = self.config['LMS']['port']
+        mac = self.config['LMS']['mac']
 
         LMS.LMS(self.whip, host, port, mac)
 

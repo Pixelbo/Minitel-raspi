@@ -1,3 +1,4 @@
+#I did it, not perfect but meh, it just works
 
 
 def center_list(input_list):  # Outputs a list with *space required to have the text centered
@@ -7,6 +8,7 @@ def center_list(input_list):  # Outputs a list with *space required to have the 
         output_list.append(
             " " * (max_char - int(len(i) / 2)) + i)
     return output_list
+
 
 def center_text(input_str, max_chars=None, both_side=False):  # Outputs a string with *space required to have the text centered
 
