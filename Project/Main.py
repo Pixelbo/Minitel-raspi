@@ -1,21 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: iso-8859-1 -*-
 
-from whiptail import Whiptail
-import utils
+import configparser
+
 import LMS
+import text_utils
+from whiptail import Whiptail
+
 
 # MEMO writable char: max_h = 18
 #                     max_w = 76
 
 class Main():
     def __init__(self):
+        self.config = configparser.ConfigParser()
+        self.config.read("options.ini")
 
-        self.whip = Whiptail("Le Minitel des Hilkens", backtitle="B.Hilkens 2021", height=24, width=80)
+        self.whip = Whiptail(self.config['WHIPTAIL']['title'], backtitle=self.config['WHIPTAIL']['corner_title'],
+                             height=24, width=80)
 
         choix_menuMain_no_center = ("Music", "other...", "Quitter")
 
-        self.choix_menuMain = utils.center_list(choix_menuMain_no_center)
+        self.choix_menuMain = text_utils.center_list(choix_menuMain_no_center)
 
         self.menu()
 
@@ -26,7 +32,11 @@ class Main():
         if selection == self.choix_menuMain[-1]: exit()
 
     def start_LMS(self):
-        LMS.LMS(self.whip)
+        host = self.language = self.config['LMS']['hostname']
+        port = self.language = self.config['LMS']['port']
+        mac = self.language = self.config['LMS']['mac']
+
+        LMS.LMS(self.whip, host, port, mac)
 
         self.menu()
 

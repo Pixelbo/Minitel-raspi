@@ -1,29 +1,35 @@
 import threading
 import time
-from pylms.server import Server
+
 import text_utils
+from pylms.server import Server
 
-class LMS():
-    def __init__(self, whip):
 
-        self.hostname_ = "192.168.0.10"
-        self.port_ = 9090
-        self.mac_ = "00:0f:55:a8:d0:f9"
+class LMS:
+    def __init__(self, whip, host, port, mac):
+
+        self.hostname_ = host
+        self.port_ = port
+        self.mac_ = mac
 
         self.update = False
         self.stop_threads = False
+
         self.whip = whip
 
-        self.server = Server(hostname=self.hostname_, port=self.port_, username=" ", password=" ")
-        self.server.connect()
+        try:
+            self.server = Server(hostname=self.hostname_, port=self.port_, username=" ", password=" ")
+            self.server.connect()
+        except Exception as e:
+            self.whip.alert("Vous n'avez pas de player! \n Erreur: " + str(e))
+            return
 
         try:
             self.player = self.server.get_player(self.mac_)
         except Exception as e:
-            print(e)
-            self.whip.alert("Vous n'avez pas de player!")
-            #Main()
-            # return
+            self.whip.alert("Vous n'avez pas de player! \n Erreur: " + str(e))
+            # Main()
+            return
 
         choix_menuLMS_no_center = ("Pause/play", "Stop", "Next", "Previous", "----------------",
                                    "Status page", "Regarder la playlist", "Clear la playlist", "Manageur de playlists",
@@ -68,23 +74,25 @@ class LMS():
                          self.choix_menuLMS[9] or
                          self.choix_menuLMS[13]):
             self.menu()  # redraw because pass will take us back to previous menu
-        if selection == self.choix_menuLMS[-1]: Main()
+        if selection == self.choix_menuLMS[-1]: return  # Main()
+
+        self.menu()
 
     def toggle(self):
         self.player.toggle()
-        self.menu()
+        return
 
     def stop(self):
         self.player.stop()
-        self.menu()
+        return
 
     def next(self):
         self.player.next()
-        self.menu()
+        return
 
     def previous(self):
         self.player.prev()
-        self.menu()
+        return
 
     def lookpl(self):
         playlist_not_treated = self.player.playlist_get_info()
@@ -109,12 +117,12 @@ class LMS():
         except:
             pass
 
-        self.menu()
+        return
 
     def clearpl(self):
         result = self.whip.confirm("Voulez vous vraiment faire ca?")
         if result: self.player.playlist_clear()
-        self.menu()
+        return
 
     def title_add(self):
         result = self.whip.prompt("Mettez le titre").decode("UTF-8")
@@ -139,7 +147,7 @@ class LMS():
         except:
             self.whip.alert("Erreur, dommage...")
 
-        self.menu()
+        return
 
     def album_add(self):
         result = self.whip.prompt("Mettez le titre de l'album").decode("UTF-8")
@@ -160,7 +168,7 @@ class LMS():
         except:
             self.whip.alert("Erreur, dommage...")
 
-        self.menu()
+        return
 
     def artist_lp(self):
         result = self.whip.prompt("Mettez l'artist").decode("UTF-8")
@@ -173,14 +181,14 @@ class LMS():
             self.whip.showlist("radiolist", "Resultats de recherche", artists_treated, "")
         except IndexError:
             self.whip.alert("Mauvais recherche, dommage...")
-        #        except:
-        #            self.whip.alert("Erreur, dommage...")
+        except:
+            self.whip.alert("Erreur, dommage...")
 
-        self.menu()
+        return
 
     def status_page(self):
         # const:
-        # TODO
+        #
 
         player_volume = self.player.get_volume()
         volume = ("Volume:" if player_volume != 0 else "Volume :") + str(player_volume) + "%"
@@ -189,6 +197,10 @@ class LMS():
         track_album = self.player.get_track_album()
         track_genre = self.player.get_track_genre()
         genre = ("Genre: " + track_genre) if track_genre != "No Genre" else ""
+
+        if not track_title:
+            self.whip.alert("Il y a pas de musique en cours!")
+            return
 
         playlist_not_treated = self.player.playlist_get_info()
         playlist_treated = []
@@ -222,24 +234,24 @@ class LMS():
         next_tracks = (
             "+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+",
             "|" + text_utils.center_text("Next Tracks", 40, True) + "|",
-            "|" + text_utils.center_text(playlist_treated[0][0][:18] + playlist_treated[0][1] + playlist_treated[0][2][:18], 40,
-                              True) + "|",
-            "|" + text_utils.center_text(playlist_treated[1][0][:18] + playlist_treated[1][1] + playlist_treated[1][2][:18], 40,
-                              True) + "|",
-            "|" + text_utils.center_text(playlist_treated[2][0][:18] + playlist_treated[2][1] + playlist_treated[2][2][:18], 40,
-                              True) + "|",
-            "|" + text_utils.center_text(playlist_treated[3][0][:18] + playlist_treated[3][1] + playlist_treated[3][2][:18], 40,
-                              True) + "|",
-            "|" + text_utils.center_text(playlist_treated[4][0][:18] + playlist_treated[4][1] + playlist_treated[4][2][:18], 40,
-                              True) + "|",
-            "|" + text_utils.center_text(playlist_treated[5][0][:18] + playlist_treated[5][1] + playlist_treated[5][2][:18], 40,
-                              True) + "|",
-            "|" + text_utils.center_text(playlist_treated[6][0][:18] + playlist_treated[6][1] + playlist_treated[6][2][:18], 40,
-                              True) + "|",
-            "|" + text_utils.center_text(playlist_treated[7][0][:18] + playlist_treated[7][1] + playlist_treated[7][2][:18], 40,
-                              True) + "|",
-            "|" + text_utils.center_text(playlist_treated[8][0][:18] + playlist_treated[8][1] + playlist_treated[8][2][:18], 40,
-                              True) + "|",
+            "|" + text_utils.center_text(
+                playlist_treated[0][0][:18] + playlist_treated[0][1] + playlist_treated[0][2][:18], 40, True) + "|",
+            "|" + text_utils.center_text(
+                playlist_treated[1][0][:18] + playlist_treated[1][1] + playlist_treated[1][2][:18], 40, True) + "|",
+            "|" + text_utils.center_text(
+                playlist_treated[2][0][:18] + playlist_treated[2][1] + playlist_treated[2][2][:18], 40, True) + "|",
+            "|" + text_utils.center_text(
+                playlist_treated[3][0][:18] + playlist_treated[3][1] + playlist_treated[3][2][:18], 40, True) + "|",
+            "|" + text_utils.center_text(
+                playlist_treated[4][0][:18] + playlist_treated[4][1] + playlist_treated[4][2][:18], 40, True) + "|",
+            "|" + text_utils.center_text(
+                playlist_treated[5][0][:18] + playlist_treated[5][1] + playlist_treated[5][2][:18], 40, True) + "|",
+            "|" + text_utils.center_text(
+                playlist_treated[6][0][:18] + playlist_treated[6][1] + playlist_treated[6][2][:18], 40, True) + "|",
+            "|" + text_utils.center_text(
+                playlist_treated[7][0][:18] + playlist_treated[7][1] + playlist_treated[7][2][:18], 40, True) + "|",
+            "|" + text_utils.center_text(
+                playlist_treated[8][0][:18] + playlist_treated[8][1] + playlist_treated[8][2][:18], 40, True) + "|",
             "+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+",
         )
 
@@ -274,17 +286,14 @@ class LMS():
         decision = self.whip.confirm("\n".join(final_message), extras=("Quit", "Quit"))
 
         if self.update:
-            self.menu(overdrive=self.choix_menuLMS[5])
+            self.status_page()
         else:
             self.stop_threads = True
             self.updater.join()
             if decision:
-                self.menu()
+                return
             else:
-                self.menu()  # TODO: album cover
-
-    ##        if decision: self.menu()
-    ##        else: self.status_page()
+                return
 
     def playlist_manager(self):
         try:
@@ -292,21 +301,24 @@ class LMS():
             playlists = self.server.request_with_results("playlists 0 50 tags:u")
             nb_playlists = playlists[0]
             playlists_name = [playlists[1][i + 1]['playlist'] for i in range(nb_playlists)]
+            playlists_name_ctr = text_utils.center_list(playlists_name)
             playlists_url = [playlists[1][i + 1]['url'] for i in range(nb_playlists)]
             playlists_id = [playlists[1][i + 1]['id'] for i in range(nb_playlists)]
 
-            selection = self.whip.menu("Manageur de playlist", text_utils.center_list(playlists_name), extras=()).decode("UTF-8")
+            selection = self.whip.menu("Manageur de playlist", playlists_name_ctr, extras=()).decode("UTF-8")
 
             pl_options = (
                 "Jouer cete playlist", "Editer cette playlist", "Rename la playlist", "Supprimmer cette playlist",
                 "Retour")
 
-            choix = self.whip.menu("Manageur de playlist: " + selection, text_utils.center_list(pl_options), extras=()).decode(
+            pl_options_ctr = text_utils.center_list(pl_options)
+
+            choix = self.whip.menu("Manageur de playlist: " + selection, pl_options_ctr, extras=()).decode(
                 "UTF-8")
 
-            if choix == pl_options[0]: self.server.request(
+            if choix == pl_options_ctr[0]: self.server.request(
                 self.mac_ + " playlist add " + playlists_url[playlists_name.index(selection)])
-            if choix == pl_options[1]:
+            if choix == pl_options_ctr[1]:
                 pl_tracks = self.server.request_with_results("playlists tracks 0 50 playlist_id:" + playlists_id[
                     playlists_name.index(selection)] + " tags:galdu")
                 nb_tracks = pl_tracks[0]
@@ -320,23 +332,45 @@ class LMS():
 
                 track_option = ("Jouer ce morceau", "Suprimer le morceau de liste", "Mettre le morceau au-dessus",
                                 "Mettre le morceau en-dessous")
-                edit_sel = self.whip.menu("Editeur de playlist: " + selection, center_list(track_option),
+
+                track_option = text_utils.center_list(track_option)
+
+                edit_sel = self.whip.menu("Editeur de playlist: " + selection, track_option,
                                           extras=()).decode("UTF-8")
 
-                if edit_sel == text_utils.center_list(track_option)[0]: self.player.playlist_play(
+                if edit_sel == track_option[0]: self.player.playlist_play(
                     pl_tracks_url[pl_tracks_info.index(track_sel)])
-                if edit_sel == text_utils.center_list(track_option)[1]: self.server.request(
+                if edit_sel == track_option[1]: self.server.request(
                     "playlists edit cmd:delete playlist_id:{} index:{}".format(
                         playlists_id[playlists_name.index(selection)], pl_tracks_info.index(track_sel) + 1))
-                if edit_sel == text_utils.center_list(track_option)[2]: self.server.request(
+                if edit_sel == track_option[2]: self.server.request(
                     "playlists edit cmd:up playlist_id:{} index:{}".format(
                         playlists_id[playlists_name.index(selection)], pl_tracks_info.index(track_sel) + 1))
-                if edit_sel == text_utils.center_list(track_option)[3]: self.server.request(
+                if edit_sel == track_option[3]: self.server.request(
                     "playlists edit cmd:down playlist_id:{} index:{}".format(
                         playlists_id[playlists_name.index(selection)], pl_tracks_info.index(track_sel) + 1))
 
-        except Exception as e:
-            print(e)
-            self.whip.alert("Erreur, dommage...")
+            if choix == pl_options_ctr[2]:
+                rename = self.whip.prompt("Quel nouveau nom voulez vous mettre à votre playlst?")
 
-        self.menu()
+                decision = self.whip.confirm(
+                    "Voulez-vous vraiment remplacer le nom de la playlist: \n {} \n par \n {} ?".format(rename,
+                                                                                                        playlists_name.index(
+                                                                                                            selection)))
+
+                if decision:
+                    self.server.request("playlists rename playlist_id:{} newname:{}".format(
+                        playlists_id[playlists_name.index(selection)], rename))
+
+            if choix == pl_options_ctr[2]:
+                decision = self.whip.confirm(
+                    "Voulez-vous vraiment supprimer la playlist {} ?".format(playlists_name.index(selection)))
+
+                if decision:
+                    self.server.request("playlists delete playlist_id:{}".format(
+                        playlists_id[playlists_name.index(selection)]))
+
+        except Exception as e:
+            self.whip.alert("Erreur, dommage... \n Erreur: " + str(e))
+
+        return

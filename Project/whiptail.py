@@ -3,16 +3,16 @@
 # license: BSD, see LICENSE for more details.
 
 from __future__ import print_function
-import sys
-import shlex
+
 import itertools
-from subprocess import Popen, PIPE
+import shlex
+import sys
 from collections import namedtuple
-import time
+from subprocess import Popen, PIPE
 
 __version__ = '0.2'
 PY3 = sys.version_info[0] == 3
-string_types = str if PY3 else basestring
+string_types = str
 Response = namedtuple('Response', 'returncode value')
 
 
@@ -29,7 +29,7 @@ class Whiptail(object):
         self.width = width
         self.auto_exit = auto_exit
 
-    def run(self, control, msg, extra=(), exit_on=(1, 255)):
+    def run(self, control, msg, extra=(), exit_on=(5,)):
         cmd = [
             'whiptail', '--title', self.title, '--backtitle', self.backtitle, '--nocancel',
             '--' + control, msg, str(self.height), str(self.width)
