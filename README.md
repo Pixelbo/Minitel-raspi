@@ -1,2 +1,1 @@
-# Minitel-raspi
-Intallation: setup.sh (not good, needs to be a better installation)
+# Minitel-raspifaut que je fasse un readme -_-
