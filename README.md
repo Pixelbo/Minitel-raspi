@@ -20,7 +20,7 @@
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#HELP!">HELP!</a></li>
+    <li><a href="#help">HELP!</a></li>
   </ol>
 </details>
 
@@ -209,5 +209,5 @@ If this don't work, see if your drive have the exec flag
   The tab "issues" at GitHub is very useful!
 	
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEwMjYyOTExOTddfQ==
+eyJoaXN0b3J5IjpbMTMzMTE2MTMwOF19
 -->
