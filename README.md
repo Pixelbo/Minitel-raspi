@@ -1,4 +1,6 @@
 # Minitel-Raspi
+![Dat minitel](https://raw.githubusercontent.com/Pixelbo/Minitel-raspi/main/minitel.jpg)
+
 <details open="open">
   <summary>Chapters</summary>
   <ol>
