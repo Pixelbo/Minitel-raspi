@@ -10,9 +10,9 @@
       <a href="#getting-started">Getting Started</a>
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#auto-installation">Automatic Installation</a></li>
-        <li><a href="#man-installation">Manual Installation</a></li>
-        <li><a href="#fin-installation">Finishing Installation</a></li>
+        <li><a href="#Automatic Installation">Automatic Installation</a></li>
+        <li><a href="#Manual Installatio">Manual Installation</a></li>
+        <li><a href="#Finishing Installation">Finishing Installation</a></li>
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
@@ -209,5 +209,5 @@ If this don't work, see if your drive have the exec flag
   The tab "issues" at GitHub is very useful!
 	
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTIxNDczODk2MTddfQ==
+eyJoaXN0b3J5IjpbLTM1MjA2MDE3Nl19
 -->
