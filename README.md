@@ -38,7 +38,7 @@ Maybe I'll do someday a thing about another API.
 # Getting Started
 ## Prerequisites
 
- - For this project we obviously need a Minitel, I use the Minitel 2B;
+ - For this project we obviously need a Minitel, I use the Minitel 1B;
    other Minitel works probably fine but I havn't tested yet. 
    
  - We need
@@ -113,6 +113,13 @@ For changing the baudrate, you need to edit two files:
 <a href="/Minite_related/init.py#L8">init.py</a>, At line 8, there is the baudrate var; default is 4800 baud.
 
 and <a href="/Minite_related/tty.py#L25">tty.py</a>, At line 25, there is the baudrate var; default is 4800 baud.
+
+Here is the tablefor the baudrates:
+
+|Minitel Version| Badurate |
+|--|--|
+| 1 |  |
+
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMjE1Njk0OTE2XX0=
+eyJoaXN0b3J5IjpbLTY0MDM2MDU4XX0=
 -->
