@@ -156,7 +156,15 @@ Beware of the licenses that you'll use!
 
 # License
 
+License for this project is under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>  ![it's the license, respect it](https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by-nc-sa.png)
+Author: Boris Hilkens
+
+Other licenses:
+
+### Whiptails-Python:
+
+Under BSD License: See  <a href="LICENSE_WHIPTAILS">LICENSE_WHIPTAILS</a>  
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTMxOTI1Mzg2XX0=
+eyJoaXN0b3J5IjpbMTE5MjgxNzQzNl19
 -->
