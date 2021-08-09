@@ -28,12 +28,14 @@
 
 Minitel-Raspi is a project that reunites the famous french Minitel and the famous Raspberry Pi.
 
+I've created a small gui with whiptail that control for now the  Logitec Music Server.
+I need to think about another API ; Ths is the main project
+It uses the Telnet protocol that is enabled in the LMS settings, you can see he docs <a href="https://github.com/elParaguayo/LMS-CLI-Documentation/blob/master/LMS-CLI.md">here</a>
+
 This project did not modify the Minitel, I used the external serial port for printing into the screen.
 
 Originaly begun in 2020 this project is driven by a kid, so go easy on me, I can't use github proprely.
 
-Beside the fact that I've put a Raspi into Minitel, I've also created a small gui project that control for now the  Logitec Music Server.
-Maybe I'll do someday a thing about another API.
 
 # Getting Started
 ## Prerequisites
