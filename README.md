@@ -29,7 +29,8 @@ Minitel-Raspi is a project that reunites the famous french Minitel and the famou
 This project did not modify the Minitel, I used the external serial port for printing into the screen.
 Originaly begun in 2020 this project is driven by a kid, so go easy on me, I can't use github proprely.
 
-# Prerequisites
+# Getting Started
+## Prerequisites
 
  - For this project we obviously need a Minitel, I use the Minitel 2B;
    other Minitel works probably fine but I havn't tested yet. 
@@ -46,7 +47,7 @@ Originaly begun in 2020 this project is driven by a kid, so go easy on me, I can
 
 -Finally the communication will not be wireless, so you will need a wire; the minitel has a back DIN socket serial port (for more information see HELP!)
 
-# Automatic Installation
+##  Automatic Installation
 
 Ok so you have everything and you want of course a terminal on your Minitel!
 
@@ -58,5 +59,5 @@ Just download the `setup.sh` in the releases and execute it in sudo mode;
 
 The installation process will do various things that I'll explain.
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTU1MDE0OTE0Nl19
+eyJoaXN0b3J5IjpbLTIwMzE2MjQ3ODhdfQ==
 -->
