@@ -196,8 +196,8 @@ Ok you need help;
 there are the options:
 
  - Hardware help: 
-	https://chapelierfou.org/blog/a-minitel-as-a-linux-terminal.html
-	https://chapelierfou.org/blog/a-minitel-2.0.html
+	- https://chapelierfou.org/blog/a-minitel-as-a-linux-terminal.html
+	- https://chapelierfou.org/blog/a-minitel-2.0.html
 	
 -Permission denied:
 	
@@ -209,5 +209,5 @@ If this don't work, see if your drive have the exec flag
   The tab "issues" at GitHub is very useful!
 	
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTk3ODk3MTE0N119
+eyJoaXN0b3J5IjpbLTIxNDczODk2MTddfQ==
 -->
