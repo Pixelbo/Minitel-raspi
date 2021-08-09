@@ -18,10 +18,10 @@ class LMS:
         self.whip = whip  # We keep the same whiptail object through the code
 
         try:  # trying to connect to the server
-            self.server = Server(hostname=self.hostname_, port=self.port_, username=" ", password=" ")
-            self.server.connect()
+          self.server = Server(hostname=self.hostname_, port=self.port_, username=" ", password=" ")
+          self.server.connect()
         except Exception as e:  # if no server then alert an error and return back to main menu
-            self.whip.alert("Vous n'avez pas de player! \n Erreur: " + str(e))
+            self.whip.alert("Vous n'avez pas de server! \n Erreur: " + str(e))
             return
 
         try:  # trying to connect to the player

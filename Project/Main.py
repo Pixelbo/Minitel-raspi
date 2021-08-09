@@ -33,8 +33,8 @@ class Main:
         if selection == self.choix_menuMain[-1]: exit()
 
     def start_LMS(self):
-        host = self.config['LMS']['hostname']
-        port = self.config['LMS']['port']
+        host = str(self.config['LMS']['hostname'])
+        port = int(self.config['LMS']['port'])
         mac = self.config['LMS']['mac']
 
         LMS.LMS(self.whip, host, port, mac)

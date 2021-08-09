@@ -1,2 +1,2 @@
 # Minitel-raspi 
-faut que je fasse un readme -_-
+faut que je fasse un readme
