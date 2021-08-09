@@ -57,7 +57,10 @@ Just download the `setup.sh` in the releases and execute it in sudo mode;
  
 **!!!!NEVER execute it twice, it will break everything; if there was an error during installation, report to te Manual Installation!!!**
 
-The installation process will do various things that I'll explain.
+The installation process will do various things that is explained just below.
+
+![Installation diagram](https://raw.githubusercontent.com/Pixelbo/Minitel-raspi/main/Installation%20Diagram.png)
+
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTIwMzE2MjQ3ODhdfQ==
+eyJoaXN0b3J5IjpbLTEwMjU1ODY0ODVdfQ==
 -->
