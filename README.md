@@ -12,6 +12,7 @@
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#auto-installation">Automatic Installation</a></li>
         <li><a href="#man-installation">Manual Installation</a></li>
+        <li><a href="#fin-installation">Finishing Installation</a></li>
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
@@ -26,8 +27,13 @@
 # About-the-project
 
 Minitel-Raspi is a project that reunites the famous french Minitel and the famous Raspberry Pi.
+
 This project did not modify the Minitel, I used the external serial port for printing into the screen.
+
 Originaly begun in 2020 this project is driven by a kid, so go easy on me, I can't use github proprely.
+
+Beside the fact that I've put a Raspi into Minitel, I've also created a small gui project that control for now the  Logitec Music Server.
+Maybe I'll do someday a thing about another API.
 
 # Getting Started
 ## Prerequisites
@@ -43,9 +49,9 @@ Originaly begun in 2020 this project is driven by a kid, so go easy on me, I can
  - For the conversion from the Raspi to the
    Minitel, you will need a FTDI USB to serial UART converter, it need
    to be at 3.3V; If you don't have this, I suggest you to take a look
-   at the HELP! chapter.
+   at the <a href="#HELP!">HELP!</a> chapter.
 
--Finally the communication will not be wireless, so you will need a wire; the minitel has a back DIN socket serial port (for more information see HELP!)
+-Finally the communication will not be wireless, so you will need a wire; the minitel has a back DIN socket serial port (for more information see <a href="#HELP!">HELP!</a>)
 
 ##  Automatic Installation
 
@@ -54,13 +60,59 @@ Ok so you have everything and you want of course a terminal on your Minitel!
 Lucky for you, I've made an automatic setup that will do everything for you!
 
 Just download the `setup.sh` in the releases and execute it in sudo mode;
- 
+ Go to <a href="#fin-installation">Finishing Installation</a> for finishing the installation!
 **!!!!NEVER execute it twice, it will break everything; if there was an error during installation, report to te Manual Installation!!!**
 
 The installation process will do various things that is explained just below.
 
 ![Installation diagram](https://raw.githubusercontent.com/Pixelbo/Minitel-raspi/main/Installation%20Diagram.png)
+## Manual Installation
 
+So you want to do it manually, ok no problem;
+
+1. First of all we need to create the user Minitel:
+
+```bash
+useradd -m -p 'Minitel' -G sudo 'Minitel'
+cd '/home/Minitel
+```
+
+2. Then we need to clone this repo:
+  
+  ```bash
+git clone 'https://github.com/Pixelbo/Minitel-raspi'
+cd 'Minitel-raspi'
+```
+
+3. The PyMinitel Library is essential to this project:
+  ```bash
+git clone 'https://github.com/paullouisageneau/PyMinitel'
+cd 'PyMinitel'
+python3 setup.py install
+cd ..
+rm -r PyMinitel
+```
+
+4. Finally we install pyserial and do various QoL things:
+
+  ```bash
+pip3 install pyserial
+echo 'export LANG=fr_FR.iso88591'>> /home/Minitel/.bashrc
+echo '/home/Minitel/Minitel-raspi/Project/Main.py'>> /home/Minitel/.bashrc #comment this line if u don't want the project at startup
+sudo tic "/home/Minitel/Minitel-raspi/Minitel_related/term.ti"
+```
+
+<a href="#fin-installation">Finishing Installation</a>
+
+## Finishing Installation
+
+Ok you're not entirely set for now, you need to maybe change the baudrate depending on your Minitel version.
+
+For changing the baudrate, you need to edit two files:
+
+<a href="/Minite_related/init.py#L8">init.py</a>, At line 8, there is the baudrate var; default is 4800 baud.
+
+and <a href="/Minite_related/tty.py#L25">tty.py</a>, At line 25, there is the baudrate var; default is 4800 baud.
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEwMjU1ODY0ODVdfQ==
+eyJoaXN0b3J5IjpbMjE1Njk0OTE2XX0=
 -->
