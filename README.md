@@ -185,7 +185,29 @@ Under BSD License: See  <a href="https://github.com/marwano/whiptail/blob/master
 See <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">LICENSE_CHAP</a>
 <a href="https://chapelierfou.org">Website</a>
 
+# Contact
 
+E-mail: pixelbo21@gmail.com
+
+# HELP!
+
+Ok you need help;
+
+there are the options:
+
+ - Hardware help: 
+	https://chapelierfou.org/blog/a-minitel-as-a-linux-terminal.html
+	https://chapelierfou.org/blog/a-minitel-2.0.html
+	
+-Permission denied:
+	
+
+    sudo chmod -R 777 Minitel-raspi
+If this don't work, see if your drive have the exec flag
+
+- Not working:
+  The tab "issues" at GitHub is very useful!
+	
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEwMjg2NjIzNzFdfQ==
+eyJoaXN0b3J5IjpbLTk3ODk3MTE0N119
 -->
