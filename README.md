@@ -114,12 +114,49 @@ For changing the baudrate, you need to edit two files:
 
 and <a href="/Minite_related/tty.py#L25">tty.py</a>, At line 25, there is the baudrate var; default is 4800 baud.
 
-Here is the tablefor the baudrates:
+Here is the table for the baudrates:
 
 |Minitel Version| Badurate |
 |--|--|
-| 1 |  |
+| 1 | 1200 |
+|1B|4800|
+|2|9600|
+
+# Usage
+
+Ok everything about the Minitel is in the folder Minitel_relted:
+
+If you want to Startup the proces for the Minitel; execute <a href="/Minitel_related/Startup.sh">Startup.sh</a>
+If you want to Shutdown the proces for the Minitel; execute <a href="/Minitel_related/Shutdown.sh">Shutdown.sh</a>
+
+If you want that it does it automaticly, you will need more wiring:
+
+TODO
+
+# Roadmap
+
+ - [x] Minitel <=> communication
+ - [ ] Proper key input with the special keyboard
+ - [ ] Proper Setup.sh
+ - Project:
+ - [x] Whiptail with python
+ - [x] Main Menu
+ - [x] LMS control
+ - [ ] adding translation
+ - [ ] testing 
+ - [ ] another API
+
+# Contributing
+
+You're free to contribute !
+Just do some issues and some pull requests;
+You can also fork this repo !
+
+Beware of the licenses that you'll use!
+
+# License
+
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTY0MDM2MDU4XX0=
+eyJoaXN0b3J5IjpbLTMxOTI1Mzg2XX0=
 -->
