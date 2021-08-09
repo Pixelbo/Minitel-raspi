@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-# Minitel-raspi 
-faut que je fasse un readme
-=======
-
 # Minitel-Raspi
 <details open="open">
   <summary>Chapters</summary>
@@ -218,4 +213,3 @@ If this don't work, see if your drive have the exec flag
 <!--stackedit_data:
 eyJoaXN0b3J5IjpbMTMzMTE2MTMwOF19
 -->
->>>>>>> eca790090228d874afdb6dbcaa4f47f0eeadb3a9
