@@ -139,16 +139,7 @@ TODO
 
 # Roadmap
 
- - [x] Minitel <=> communication
- - [ ] Proper key input with the special keyboard
- - [ ] Proper Setup.sh
- - Project:
- - [x] Whiptail with python
- - [x] Main Menu
- - [x] LMS control
- - [ ] adding translation
- - [ ] testing 
- - [ ] another API
+See Project tab on github
 
 # Contributing
 
@@ -160,7 +151,7 @@ Beware of the licenses that you'll use!
 
 # License
 
-See <a href="LICENSE">License</a>
+See <a href="LICENSE.md">License</a>
 
 # Contact
 
