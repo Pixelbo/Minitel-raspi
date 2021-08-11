@@ -142,7 +142,7 @@ if pid:
         # print(c)
         if len(c) == 0:
             break
-        if ord(c) == 0x03 or ord(c) == 0x18:  # divert ctrl-C and ctrl-X and send SIGINT
+        if ord(c) == 0x03:  # divert ctrl-C and ctrl-X and send SIGINT #or ord(c) == 0x18
             try:
                 fgid = int(subprocess.check_output(['ps', 'h', '-t', ttyname, '-o', 'tpgid']).decode(
                     sys.stdout.encoding).split('\n')[0])
