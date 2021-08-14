@@ -47,9 +47,10 @@ class Main:
         self.menu()
 
     def start_food(self):
-        id = str(self.api['RECIPE']['APP_ID'])
-        key = str(self.api['RECIPE']['APP_KEY'])
-        Food.Recipe(self.whip, id, key)
+        app_id = str(self.api['RECIPE']['APP_ID'])
+        app_key = str(self.api['RECIPE']['APP_KEY'])
+        Food.Recipe(self.whip, app_id, app_key)
 
+        self.menu()
 
 Main()
