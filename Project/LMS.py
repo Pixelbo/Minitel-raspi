@@ -337,7 +337,7 @@ class LMS:
                     pl_tracks_info.append(pl_tracks[1][i + 1]['title'] + " par " + pl_tracks[1][i + 1]['artist'])
 
                 track_sel = self.whip.menu("Editeur de playlist: " + selection, text_utils.center_list(pl_tracks_info), extras=()).decode("UTF-8")
-
+                # TODO: fix it!
                 #Option to dowith the tracks
                 track_option = (
                     "Jouer ce morceau",
