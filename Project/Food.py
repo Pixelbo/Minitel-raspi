@@ -15,44 +15,58 @@ class Recipe:
         self.ID = app_id
         self.KEY = app_key
 
-        self.name_lunch = None
-        self.extra_params = None
+        self.nameLunch = None
+        self.extraParams = None
+        self.Recipe = None
 
         # self.request("chicken soup", '{"diet": "low-fat"}')
         self.Menu()
 
     # Extras list presentation in json: {"diet": "low-fat"}
-    def request(self, query, extra):
-        Base_url = "https://api.edamam.com/api/recipes/v2?type=public" \
-                   "&q={_query}" \
-                   "&app_id={id}" \
-                   "&app_key={key}" \
-                   "{extra}" \
-                   "&field=label&field=source&field=url&field=shareAs&field=yield&field=dietLabels&field=healthLabels&field=cautions&field=ingredientLines&field=ingredients&field=calories&field=totalTime&field=cuisineType&field=mealType&field=dishType&field=totalNutrients"
+    def request(self, param, extra, type="Search"):
 
-        query = urllib.parse.quote(query)
+        param = urllib.parse.quote(param)
 
-        if extra is not None:
-            extra_dict = json.loads(extra)
+        if type == "Search":
+            Base_url = "https://api.edamam.com/api/recipes/v2?type=public" \
+                       "&q={_query}" \
+                       "&app_id={id}" \
+                       "&app_key={key}" \
+                       "{extra}" \
+                       "&field=label&field=source&field=url&field=shareAs&field=yield&field=dietLabels&field=healthLabels&field=cautions&field=ingredientLines&field=calories&field=totalTime&field=cuisineType&field=mealType&field=dishType&field=totalNutrients"
 
-            extra_str = ""
-            for extra in extra_dict:
-                extra_str += "&" + urllib.parse.quote(extra) + "=" + urllib.parse.quote(extra_dict[extra])
+            if extra is not None:
+                extra_dict = json.loads(extra)
+
+                extra_str = ""
+                for extra in extra_dict:
+                    extra_str += "&" + urllib.parse.quote(extra) + "=" + urllib.parse.quote(extra_dict[extra])
+            else:
+                extra_str = ""
+
+            URL = Base_url.format(_query=param, id=self.ID, key=self.KEY, extra=extra_str)
+
+        elif type == "withID":
+            Base_url = "https://api.edamam.com/api/recipes/v2/{recipeID}?type=public" \
+                       "&app_id={id}" \
+                       "&app_key={key}"
+
+            URL = Base_url.format(recipeID=param, id=self.ID, key=self.KEY)
+
         else:
-            extra_str = ""
-
-        URL = Base_url.format(_query=query, id=self.ID, key=self.KEY, extra=extra_str)
+            return
 
         request = requests.get(URL)
 
         if request.status_code != 200:
             self.whip("Erreur WEB!, Erreur: {}".format(request.status_code))
 
-        request_JSON = json.dumps(request.json())
+        request_JSON = request.json()
 
         return request_JSON
 
     def Menu(self):
+
         choix_menuFood = ("Nom de la recette", "Parametres extras",
                           "----------------",
                           "Documentation pour les parametres extras",
@@ -66,15 +80,17 @@ class Recipe:
         selection = self.whip.menu("", choix_menuFood).decode("UTF-8")
 
         if selection == choix_menuFood[0]:
-            self.name_lunch = self.Query_entry()
+            self.nameLunch = self.Query_entry()
+
         if selection == choix_menuFood[1]:
-            self.extra_params = self.Extra_params()
+            self.extraParams = self.Extra_params()
         if selection == choix_menuFood[3]: pass
         if selection == choix_menuFood[5]:
-            if (self.name_lunch == None):
-                self.whip.alert("Vous n'avez pas mis de repas!")
+            if self.nameLunch is not None:
+                self.Search(self.nameLunch, self.extraParams)  # TODO: get that self out of there!
             else:
-                self.Search()
+                self.whip.alert("Vous n'avez pas mis de repas!")
+
         if selection == (choix_menuFood[2] or choix_menuFood[4] or choix_menuFood[6]): self.Menu()
         if selection == choix_menuFood[-1]: return
 
@@ -96,5 +112,88 @@ class Recipe:
 
         return json.dumps(dict(reponse))
 
-    def Search(self):
-        print(self.request(self.name_lunch, self.extra_params))
+    def Search(self, name_lunch, extra_params=None, overdrive=None):
+        reponse = self.request(name_lunch, extra_params)
+
+        fromToCount = [reponse["from"], reponse["to"], reponse["count"]]
+
+        if fromToCount[2] == 0:
+            self.whip.alert("Mauvaise recherche!")
+            return
+
+        try:
+            nextPage_URL = reponse["_links"]["next"]["href"]
+        except:
+            nextPage_URL = None
+
+        recipeArray = []
+        recipeLabels = ["Quitter", "Next Page"]
+        for i in reponse["hits"]:
+            recipeArray.append(i["recipe"])
+            recipeLabels.append(i["recipe"]["label"])
+
+        recipeLabels = text_utils.center_list(recipeLabels)
+
+        if overdrive is None:
+            selected_recipe = self.whip.menu("Here are the results; there are {} results, this is from {} to {}"
+                                             .format(fromToCount[2], fromToCount[0], fromToCount[1]),
+                                             recipeLabels, extras=()).decode("UTF-8")
+        else:
+            selected_recipe = recipeLabels[overdrive + 2]
+
+        if selected_recipe == recipeLabels[0]:  # Next page
+            return  # TODO: better function
+
+        if selected_recipe == recipeLabels[1]:  # Quitter
+            return  # TODO: better function
+
+        self.Recipe = recipeArray[recipeLabels.index(selected_recipe) - 2]  # -2 for the Next page and quitter
+        index = recipeLabels.index(selected_recipe) - 2
+
+        choix_menuRecipe = (
+        "Voir les ingrédients", "Voir les détails de la recette", "Voir les nutrimetns de la recette",
+        "----------------",
+        "Ajouter la recette au favoris",
+        "----------------",
+        "Generer un qr code !",
+        "----------------",
+        "Retour")
+
+        choix_menuRecipe = text_utils.center_list(choix_menuRecipe)
+
+        result = self.whip.menu(
+            "Voici les options pour la recette: {} ".format(text_utils.decenter_text(selected_recipe)),
+            choix_menuRecipe).decode("UTF-8")
+
+        if result == choix_menuRecipe[0]: self.look_ingredients(name_lunch, extra_params, index)
+        if result == choix_menuRecipe[1]: self.look_details(name_lunch, extra_params, index)
+        if result == choix_menuRecipe[2]: self.look_nutriments(name_lunch, extra_params, index)
+        if result == choix_menuRecipe[4]: self.add_fav(name_lunch, extra_params, index)
+        if result == choix_menuRecipe[6]: self.generate_qrcode(name_lunch, extra_params, index)
+        if result == (choix_menuRecipe[3] or choix_menuRecipe[5] or choix_menuRecipe[7]): self.Search(name_lunch,
+                                                                                                      extra_params)
+        if result == choix_menuRecipe[-1]: self.Search(name_lunch, extra_params)
+
+    def look_ingredients(self, return_name_lunch, return_extra_params, index):
+        ingredients = []
+
+        for i in self.Recipe["ingredientLines"]:
+            ingredients.append(i)
+
+        ingredients = text_utils.center_list(ingredients)
+
+        self.whip.menu("Voici la liste des ingredients, faites enter pour faire retour", ingredients)
+
+        self.Search(return_name_lunch, return_extra_params, index)
+
+    def look_details(self, return_name_lunch, return_extra_params, index):
+        self.Search(return_name_lunch, return_extra_params, index)
+
+    def look_nutriments(self, return_name_lunch, return_extra_params, index):
+        self.Search(return_name_lunch, return_extra_params, index)
+
+    def add_fav(self, return_name_lunch, return_extra_params, index):
+        self.Search(return_name_lunch, return_extra_params, index)
+
+    def generate_qrcode(self, return_name_lunch, return_extra_params, index):
+        self.Search(return_name_lunch, return_extra_params, index)

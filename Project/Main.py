@@ -3,8 +3,8 @@
 
 import configparser
 
-import LMS
 import Food
+import LMS
 import text_utils
 from whiptail import Whiptail
 
@@ -53,4 +53,6 @@ class Main:
 
         self.menu()
 
-Main()
+
+if __name__ == "__main__":
+    Main()
