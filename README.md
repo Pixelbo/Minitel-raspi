@@ -105,7 +105,7 @@ rm -r PyMinitel
 4. Finally we install pyserial and do various QoL things:
 
   ```bash
-pip3 install pyserial
+pip3 install -r requirements.txt
 echo 'export LANG=fr_FR.iso88591'>> /home/Minitel/.bashrc
 echo 'cd /home/Minitel/Minitel-raspi/Project/'>> /home/Minitel/.bashrc #comment this line if u don't want the project at startup
 echo './Main.py' >> /home/Minitel/.bashrc
