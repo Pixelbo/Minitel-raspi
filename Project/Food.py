@@ -1,11 +1,11 @@
+import io
 import json
 import urllib.parse
 
+import qrcode
 import requests
 import text_utils
 
-
-# import qrcode
 
 class Recipe:
     def __init__(self, whip, app_id, app_key):
@@ -86,8 +86,7 @@ class Recipe:
             # TODO: do the file
             pass
         if selection == choix_menuFood[5]:
-            # TODO: do the favs
-            pass
+            self.look_favs()
         if selection == choix_menuFood[6]:
             if self.nameLunch is not None:
                 self.Search(self.nameLunch, self.extraParams)  # TODO: get that self out of there!
@@ -114,6 +113,48 @@ class Recipe:
             reponse[reponse.index(i)] = i.split(":")
 
         return json.dumps(dict(reponse))
+
+    def look_favs(self, overdrive=None):
+        with open('favFood.json', 'r+') as file:
+            json_file = json.load(file)
+            file.close()
+
+        data = json_file["favs"]
+
+        labels = []
+        for i in data:
+            labels.append(i["label"])
+
+        if overdrive is None:
+            selection = self.whip.menu("Voici vos favoris!", labels).decode("UTF-8")
+            index = labels.index(selection)
+        else:
+            index = overdrive
+            selection = data[index]["label"]
+
+        ID = data[index]["ID"]
+
+        self.Recipe = self.request(ID, None, type="withID")["recipe"]
+
+        choix_menuRecipe = (
+            "Voir les ingrédients", "Voir les détails de la recette", "Voir les nutrimetns de la recette",
+            "----------------",
+            "Generer un qr code !",
+            "----------------",
+            "Retour")
+
+        choix_menuRecipe = text_utils.center_list(choix_menuRecipe)
+
+        result = self.whip.menu(
+            "Voici les options pour la recette: {} ".format(text_utils.decenter_text(selection)),
+            choix_menuRecipe).decode("UTF-8")
+
+        if result == choix_menuRecipe[0]: self.look_ingredients("Favs_request", None, index)
+        if result == choix_menuRecipe[1]: self.look_details("Favs_request", None, index)
+        if result == choix_menuRecipe[2]: self.look_nutriments("Favs_request", None, index)
+        if result == choix_menuRecipe[4]: self.generate_qrcode("Favs_request", None, index, self.Recipe["url"])
+        if result == (choix_menuRecipe[3] or choix_menuRecipe[5]): pass
+        if result == choix_menuRecipe[-1]: pass
 
     def Search(self, name_lunch, extra_params=None, overdrive=None):
         reponse = self.request(name_lunch, extra_params)
@@ -171,7 +212,7 @@ class Recipe:
         if result == choix_menuRecipe[1]: self.look_details(name_lunch, extra_params, index)
         if result == choix_menuRecipe[2]: self.look_nutriments(name_lunch, extra_params, index)
         if result == choix_menuRecipe[4]: self.add_fav(name_lunch, extra_params, index, recipeID)
-        if result == choix_menuRecipe[6]: self.generate_qrcode(name_lunch, extra_params, index)
+        if result == choix_menuRecipe[6]: self.generate_qrcode(name_lunch, extra_params, index, self.Recipe["url"])
         if result == (choix_menuRecipe[3] or choix_menuRecipe[5] or choix_menuRecipe[7]): self.Search(name_lunch,
                                                                                                       extra_params)
         if result == choix_menuRecipe[-1]: self.Search(name_lunch, extra_params)
@@ -186,7 +227,10 @@ class Recipe:
 
         self.whip.menu("Voici la liste des ingredients, faites enter pour faire retour", ingredients)
 
-        self.Search(return_name_lunch, return_extra_params, index)
+        if return_name_lunch == "Favs_request":
+            self.look_favs(index)
+        else:
+            self.Search(return_name_lunch, return_extra_params, index)
 
     def look_details(self, return_name_lunch, return_extra_params, index):
         label = self.Recipe["label"]
@@ -220,7 +264,10 @@ class Recipe:
 
         self.whip.confirm("\n".join(message), extras=("Quit", "Quit"))
 
-        self.Search(return_name_lunch, return_extra_params, index)
+        if return_name_lunch == "Favs_request":
+            self.look_favs(index)
+        else:
+            self.Search(return_name_lunch, return_extra_params, index)
 
     def look_nutriments(self, return_name_lunch, return_extra_params, index):
         nutriments = []
@@ -232,7 +279,10 @@ class Recipe:
 
         self.whip.menu("Voici les nutriments, faites enter pour faire retour", nutriments)
 
-        self.Search(return_name_lunch, return_extra_params, index)
+        if return_name_lunch == "Favs_request":
+            self.look_favs(index)
+        else:
+            self.Search(return_name_lunch, return_extra_params, index)
 
     def add_fav(self, return_name_lunch, return_extra_params, index, ID):
         with open('favFood.json', 'r+') as file:
@@ -258,6 +308,16 @@ class Recipe:
 
         self.Search(return_name_lunch, return_extra_params, index)
 
-    def generate_qrcode(self, return_name_lunch, return_extra_params, index):
-        # TODO: do it!
-        self.Search(return_name_lunch, return_extra_params, index)
+    def generate_qrcode(self, return_name_lunch, return_extra_params, index, link):
+        qr = qrcode.QRCode()
+        qr.add_data(link)
+        f = io.StringIO()
+        qr.print_ascii(out=f)
+        f.seek(0)
+
+        self.whip.alert("Voici le qr code pour la recette: {} \n".format(return_name_lunch) + f.read())
+
+        if return_name_lunch == "Favs_request":
+            self.look_favs(index)
+        else:
+            self.Search(return_name_lunch, return_extra_params, index)

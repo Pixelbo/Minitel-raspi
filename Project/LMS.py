@@ -25,6 +25,7 @@ class LMS:
             return
 
         try:  # trying to connect to the player
+            self.server.get_players()
             self.player = self.server.get_player(self.mac_)
         except Exception as e:  # if no player then alert an error and return back to main menu
             self.whip.alert("Vous n'avez pas de player! \n Erreur: " + str(e))
