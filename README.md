@@ -29,13 +29,19 @@
 
 Minitel-Raspi is a project that reunites the famous french Minitel and the famous Raspberry Pi.
 
-I've created a small gui with whiptail that control for now the  Logitec Music Server.
-I need to think about another API ; Ths is the main project
-It uses the Telnet protocol that is enabled in the LMS settings, you can see he docs <a href="https://github.com/elParaguayo/LMS-CLI-Documentation/blob/master/LMS-CLI.md">here</a>
+But the having a terminal on the Minitel isn't useful.
+
+So I've created a small gui with whiptail that control various api
+
+First API:
+	It uses the Telnet protocol that is enabled in the LMS settings, you can see he docs <a href="https://github.com/elParaguayo/LMS-CLI-Documentation/blob/master/LMS-CLI.md">here</a>
+Second API:
+	It uses simple request and JSON parsing to retrieve lunch recipe and then generate a qrcode for your mobile!
+	
 
 This project did not modify the Minitel, I used the external serial port for printing into the screen.
 
-Originaly begun in 2020 this project is driven by a kid, so go easy on me, I can't use github proprely.
+Originaly begun in 2020 this project is driven by a kid, so go easy on me, I can't use github proprely, or do I?
 
 
 # Getting Started
@@ -47,7 +53,7 @@ Originaly begun in 2020 this project is driven by a kid, so go easy on me, I can
  - We need
    also a Raspberry Pi; I use the model 2B. It's better to have a wi-fi
    connection for this because it's impossible to work directly with the
-   Minitel (slow frame-rate). 
+   Minitel (slow frame-rate). Python and pip3 installed.
    
  - For the conversion from the Raspi to the
    Minitel, you will need a FTDI USB to serial UART converter, it need
@@ -99,7 +105,7 @@ rm -r PyMinitel
 4. Finally we install pyserial and do various QoL things:
 
   ```bash
-pip3 install pyserial
+pip3 install -r requirements.txt
 echo 'export LANG=fr_FR.iso88591'>> /home/Minitel/.bashrc
 echo 'cd /home/Minitel/Minitel-raspi/Project/'>> /home/Minitel/.bashrc #comment this line if u don't want the project at startup
 echo './Main.py' >> /home/Minitel/.bashrc

@@ -25,6 +25,7 @@ class LMS:
             return
 
         try:  # trying to connect to the player
+            self.server.get_players()
             self.player = self.server.get_player(self.mac_)
         except Exception as e:  # if no player then alert an error and return back to main menu
             self.whip.alert("Vous n'avez pas de player! \n Erreur: " + str(e))
@@ -337,7 +338,7 @@ class LMS:
                     pl_tracks_info.append(pl_tracks[1][i + 1]['title'] + " par " + pl_tracks[1][i + 1]['artist'])
 
                 track_sel = self.whip.menu("Editeur de playlist: " + selection, text_utils.center_list(pl_tracks_info), extras=()).decode("UTF-8")
-
+                # TODO: fix it!
                 #Option to dowith the tracks
                 track_option = (
                     "Jouer ce morceau",

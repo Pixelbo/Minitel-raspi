@@ -1,4 +1,4 @@
-#I did it, not perfect but meh, it just works
+# I did it, not perfect but meh, it just works
 
 
 def center_list(input_list):  # Outputs a list with *space required to have the text centered
@@ -10,11 +10,12 @@ def center_list(input_list):  # Outputs a list with *space required to have the 
     return output_list
 
 
-def center_text(input_str, max_chars=None, both_side=False):  # Outputs a string with *space required to have the text centered
+def center_text(input_str, max_chars=None,
+                both_side=False):  # Outputs a string with *space required to have the text centered
 
     if len(input_str) % 2 != 0: input_str += " "
 
-    if max_chars == None: max_chars = int(len(max(input_str, key=len)) / 2)
+    if max_chars is None: max_chars = int(len(max(input_str, key=len)) / 2)
 
     spaces = int(max_chars / 2 - len(input_str) / 2)
 
@@ -25,3 +26,9 @@ def center_text(input_str, max_chars=None, both_side=False):  # Outputs a string
         return " " * spaces_left + input_str + " " * spaces_right
     else:
         return " " * spaces_left + input_str
+
+
+def decenter_text(input_str):
+    a = input_str.split()
+    output = " ".join(a)
+    return output
