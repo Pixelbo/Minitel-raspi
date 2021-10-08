@@ -315,8 +315,8 @@ class Recipe:
         qr.print_ascii(out=f)
         f.seek(0)
 
-        self.whip.alert("Voici le qr code pour la recette: {} \n".format(return_name_lunch) + f.read())
-
+        print("Voici le qr code pour la recette: {} \n".format(return_name_lunch) + f.read())
+        input("\n\n\nAppuyer sur n'importe quelle touche pour continuer!")
         if return_name_lunch == "Favs_request":
             self.look_favs(index)
         else:
